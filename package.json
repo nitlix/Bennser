@@ -1,0 +1,21 @@
+{
+	"name": "bennser-monorepo",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"scripts": {
+		"build:asm": "bun packages/asm/build.ts",
+		"build:oracle": "bun tests/build-oracle.ts",
+		"test": "bun test tests/",
+		"typecheck": "tsc --noEmit -p ."
+	},
+	"devDependencies": {
+		"@bennser/asm": "workspace:*",
+		"@bennser/core": "workspace:*",
+		"@types/bun": "latest",
+		"typescript": "^5.9.0"
+	}
+}

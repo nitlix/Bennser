@@ -1,0 +1,64 @@
+@reference "../../app/globals.css";
+
+.svg {
+	@apply w-full h-auto max-h-full font-mono;
+}
+
+.block {
+	@apply fill-white dark:fill-black stroke-neutral-300 dark:stroke-neutral-700;
+	stroke-width: 1px;
+	vector-effect: non-scaling-stroke;
+	transition: stroke 0.2s ease;
+
+	&.on {
+		@apply stroke-amber-500;
+	}
+}
+
+.blockLabel {
+	@apply fill-neutral-600 dark:fill-neutral-300 font-sans;
+	font-size: 12px;
+	font-weight: 500;
+	text-anchor: middle;
+	dominant-baseline: middle;
+}
+
+.wire {
+	@apply fill-none stroke-neutral-200 dark:stroke-neutral-800;
+	stroke-width: 2px;
+	stroke-linejoin: round;
+	transition: stroke 0.2s ease;
+}
+
+.wireOn {
+	@apply fill-none stroke-amber-500;
+	stroke-width: 2.5px;
+	stroke-linejoin: round;
+	stroke-dasharray: 6 6;
+	animation: flow 0.6s linear infinite;
+}
+
+.value {
+	@apply fill-black dark:fill-white;
+	font-size: 11px;
+	text-anchor: middle;
+	dominant-baseline: middle;
+}
+
+.valueBg {
+	@apply fill-white dark:fill-black stroke-amber-500/60;
+	stroke-width: 1px;
+}
+
+@keyframes flow {
+	to {
+		stroke-dashoffset: -12;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wireOn {
+		animation: none;
+		stroke-dasharray: none;
+	}
+}

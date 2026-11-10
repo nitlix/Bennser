@@ -1,0 +1,110 @@
+@reference "../../app/globals.css";
+
+/*
+ * The plate: a solid face, a hairline, and a heavier bottom edge. It doesn't press down;
+ * hover and "on" states only change the fill. Tones only set the vars.
+ */
+.button {
+	--face: var(--color-white);
+	--face-hover: var(--color-neutral-50);
+	--edge: var(--color-neutral-200);
+	--base: var(--color-neutral-200);
+	--ink: var(--color-neutral-800);
+
+	@apply relative flex flex-row items-center justify-center gap-[.45rem] shrink-0 h-[2.5rem] px-[1rem] rounded-[.75rem] text-[.875rem] font-[600] whitespace-nowrap select-none;
+	color: var(--ink);
+	background: var(--face);
+	border: 1px solid var(--edge);
+	border-bottom: 3px solid var(--base);
+	transition:
+		background-color 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease;
+
+	&:hover:not(:disabled) {
+		background: var(--face-hover);
+	}
+
+	&:focus-visible {
+		@apply outline-[2px] outline-offset-[2px] outline-amber-500;
+	}
+
+	&:disabled {
+		@apply cursor-not-allowed opacity-50;
+	}
+
+	:global([data-theme="dark"]) & {
+		--face: var(--color-neutral-900);
+		--face-hover: var(--color-neutral-800);
+		--edge: var(--color-neutral-800);
+		--base: var(--color-neutral-800);
+		--ink: var(--color-neutral-200);
+	}
+
+	/* Open menus and latched toggles: a soft fill, no movement. */
+	&[aria-expanded="true"] {
+		--face: var(--color-neutral-100);
+		--face-hover: var(--color-neutral-100);
+
+		:global([data-theme="dark"]) & {
+			--face: var(--color-neutral-800);
+			--face-hover: var(--color-neutral-800);
+		}
+	}
+
+	&[aria-pressed="true"] {
+		--face: var(--color-amber-50);
+		--face-hover: var(--color-amber-100);
+		--edge: var(--color-amber-300);
+		--base: var(--color-amber-300);
+		--ink: var(--color-amber-800);
+
+		:global([data-theme="dark"]) & {
+			--face: color-mix(
+				in oklab,
+				var(--color-amber-500) 15%,
+				var(--color-neutral-900)
+			);
+			--face-hover: color-mix(
+				in oklab,
+				var(--color-amber-500) 22%,
+				var(--color-neutral-900)
+			);
+			--edge: var(--color-amber-800);
+			--base: var(--color-amber-800);
+			--ink: var(--color-amber-300);
+		}
+	}
+
+	/* Filled tones: same in both themes, so they out-rank the dark neutral block. */
+	&.amber,
+	:global([data-theme="dark"]) &.amber {
+		--face: var(--color-amber-400);
+		--face-hover: var(--color-amber-300);
+		--edge: var(--color-amber-500);
+		--base: var(--color-amber-600);
+		--ink: var(--color-neutral-950);
+	}
+
+	&.sky,
+	:global([data-theme="dark"]) &.sky {
+		--face: var(--color-sky-400);
+		--face-hover: var(--color-sky-300);
+		--edge: var(--color-sky-500);
+		--base: var(--color-sky-600);
+		--ink: var(--color-neutral-950);
+	}
+}
+
+.icon {
+	@apply w-[2.5rem] px-0;
+}
+
+.small {
+	@apply h-[1.85rem] px-[.65rem] rounded-[.55rem] text-[.8rem] gap-[.3rem];
+	border-bottom-width: 2px;
+
+	&.icon {
+		@apply w-[1.85rem] px-0;
+	}
+}

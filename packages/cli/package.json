@@ -1,0 +1,12 @@
+{
+	"name": "bennser",
+	"version": "0.0.1",
+	"type": "module",
+	"bin": {
+		"bennser": "src/index.ts"
+	},
+	"dependencies": {
+		"@bennser/core": "workspace:*",
+		"@bennser/asm": "workspace:*"
+	}
+}

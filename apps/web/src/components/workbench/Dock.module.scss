@@ -1,0 +1,105 @@
+@reference "../../app/globals.css";
+
+/* Mobile: one scrolling stack. lg+: columns sized by flex-grow ratios, with splitters in the gaps. */
+.dock {
+	@apply flex flex-col gap-[.75rem] flex-1;
+
+	@media (width >= 64rem) {
+		@apply flex-row gap-0 min-h-0;
+	}
+}
+
+.column {
+	@apply flex flex-col gap-[.75rem] min-w-0;
+	flex-basis: 0;
+
+	@media (width >= 64rem) {
+		@apply gap-0 min-h-0;
+	}
+}
+
+.cell {
+	@apply relative flex flex-col min-h-[24rem] min-w-0;
+	flex-basis: 0;
+	transition: opacity 0.15s ease;
+
+	@media (width >= 64rem) {
+		@apply min-h-0;
+	}
+
+	& > section {
+		@apply flex-1;
+	}
+}
+
+.lifted {
+	@apply opacity-40;
+}
+
+.splitter {
+	@apply hidden shrink-0 relative;
+	touch-action: none;
+
+	@media (width >= 64rem) {
+		@apply block;
+	}
+
+	/* The visible grip: a short pill that lights up on hover / while dragging. */
+	&::after {
+		@apply content-[''] absolute rounded-full bg-transparent transition-colors;
+	}
+
+	&:hover::after,
+	&:active::after {
+		@apply bg-amber-500;
+	}
+}
+
+.splitX {
+	@apply w-[.75rem] cursor-col-resize;
+
+	&::after {
+		@apply top-1/2 left-1/2 w-[.25rem] h-[3rem] -translate-x-1/2 -translate-y-1/2;
+	}
+}
+
+.splitY {
+	@apply h-[.75rem] cursor-row-resize;
+
+	&::after {
+		@apply top-1/2 left-1/2 h-[.25rem] w-[3rem] -translate-x-1/2 -translate-y-1/2;
+	}
+}
+
+.drop {
+	@apply absolute z-[5] rounded-[.75rem] bg-amber-500/15 border-[1px] border-dashed border-amber-500 pointer-events-none;
+
+	&.top {
+		@apply inset-x-0 top-0 h-1/2;
+	}
+
+	&.bottom {
+		@apply inset-x-0 bottom-0 h-1/2;
+	}
+
+	&.left {
+		@apply inset-y-0 left-0 w-1/2;
+	}
+
+	&.right {
+		@apply inset-y-0 right-0 w-1/2;
+	}
+}
+
+.empty {
+	@apply flex-1 grid place-items-center rounded-[.75rem] border-[1px] border-dashed border-neutral-300 dark:border-neutral-700 text-neutral-500 text-[.875rem];
+}
+
+/* While a splitter is dragged, keep the cursor and stop text selection everywhere. */
+:global(body[data-resizing="x"]) {
+	@apply cursor-col-resize select-none;
+}
+
+:global(body[data-resizing="y"]) {
+	@apply cursor-row-resize select-none;
+}
