@@ -1,0 +1,18 @@
+name: ci
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+            - run: bun install --frozen-lockfile
+            - run: bun fmt --check
+            # Differential tests need Bennett (uni GitLab, not reachable from here) and skip themselves;
+            # run `bun run sync` locally to rebuild + test against upstream.
+            - run: bun run test
+            - run: bun run --cwd apps/web build
