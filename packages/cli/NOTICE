@@ -1,0 +1,13 @@
+Bennser
+Copyright 2026 nitLix
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+The license grants no rights to the "Bennser" name or logo (Apache-2.0, section 6).
+
+Third-party code
+----------------
+The assembler in packages/asm/wasm/ (and bundled into the `bennser` npm package)
+is compiled from Bennett's riscv_tools by Jim Garside and Pavlos Petoumenos,
+University of Manchester. It is NOT covered by this project's license; its
+copyright remains with its authors. For licensing of Bennett and riscv_tools,
+contact the University of Manchester (see upstream License.md).

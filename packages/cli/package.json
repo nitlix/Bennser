@@ -1,11 +1,41 @@
 {
 	"name": "bennser",
-	"version": "0.0.1",
+	"version": "0.1.1",
+	"description": "Run University of Manchester (Bennett) RISC-V assembly anywhere: the upstream assembler (WASM) plus a bug-compatible emulator.",
+	"license": "Apache-2.0",
+	"keywords": [
+		"risc-v",
+		"riscv",
+		"assembler",
+		"emulator",
+		"bennett",
+		"manchester",
+		"comp15111",
+		"cli"
+	],
+	"homepage": "https://github.com/nitlix/Bennser#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nitlix/Bennser.git",
+		"directory": "packages/cli"
+	},
+	"bugs": "https://github.com/nitlix/Bennser/issues",
 	"type": "module",
 	"bin": {
-		"bennser": "src/index.ts"
+		"bennser": "dist/bennser.js"
 	},
-	"dependencies": {
+	"files": [
+		"dist",
+		"NOTICE"
+	],
+	"engines": {
+		"node": ">=18.3"
+	},
+	"scripts": {
+		"build": "bun build.ts",
+		"prepublishOnly": "bun build.ts"
+	},
+	"devDependencies": {
 		"@bennser/core": "workspace:*",
 		"@bennser/asm": "workspace:*"
 	}

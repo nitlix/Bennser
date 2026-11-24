@@ -15,6 +15,14 @@ CI (`.github/workflows/ci.yml`, every push and PR) runs, in order: `bun install 
 
 Commits go to `master`, and **a push to master deploys** the web app. Commit-message style: `feat(web): …`, `chore(asm): …`, `style: …`, `ci: …`, and so on. End each message with the attribution line from the global instructions.
 
+## Publishing the CLI (npm)
+
+- The npm package is `bennser`. `packages/cli/build.ts` bundles core, asm and the inlined WASM into one dependency-free `dist/bennser.js` (Node ≥ 18.3 or Bun). The workspace packages are devDependencies only, so nothing else gets published.
+- **To release:** bump `version` in `packages/cli/package.json` and push to master. `.github/workflows/publish-cli.yml` stages any version that isn't on npm yet (tests, build, Node smoke test, `npm stage publish --provenance`), then creates a `cli-v<version>` GitHub release. The version goes live only after npm's automated review and a maintainer **approves** it with 2FA: npmjs.com → bennser → Versions, or `npm stage approve <id>`.
+- Auth is npm **trusted publishing** (OIDC) bound to `nitlix/Bennser` + `publish-cli.yml`, with stage-only permission. There is no token secret. Renaming the workflow file breaks publishing until the npm settings are updated.
+- Bennett itself has no open licence. Bennser's own code is Apache-2.0 (`LICENSE`, `NOTICE`, copied into `packages/cli` for the npm tarball); the NOTICE says the bundled assembler isn't covered.
+- `packages/cli/README.md` is the npm page.
+
 ## Commands
 
 All commands run from the repo root. Use bun everywhere, never npm or npx.
@@ -38,7 +46,7 @@ All commands run from the repo root. Use bun everywhere, never npm or npx.
 ```
 packages/core   @bennser/core: TS RV32 emulator (bug-compatible), COMP15111 ecalls, KMD parser, Machine (step/run/undo + traces)
 packages/asm    @bennser/asm: upstream assembler → WASM. "." = node/bun build, "./browser" = web build. build.ts compiles it.
-packages/cli    `bennser` bin: run / asm
+packages/cli    `bennser` bin: run / asm. Published to npm as `bennser` (bundled by build.ts into dist/bennser.js)
 apps/web        @bennser/web: Next.js App Router on vinext (Vite) → Cloudflare Workers (wrangler name "bennser-web")
 tests/          diff.test.ts (vs native oracle), provenance.test.ts (wasm ↔ lock), undo.test.ts; programs/*.s fixtures
 scripts/        sync-upstream.ts, build-favicon.ts

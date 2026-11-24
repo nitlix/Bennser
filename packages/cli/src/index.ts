@@ -10,6 +10,7 @@ import {
 	type StopReason,
 	hex32,
 } from "@bennser/core";
+import { version } from "../package.json";
 
 const HELP = `bennser — Manchester (Bennett) RISC-V assembler & emulator, anywhere
 
@@ -23,6 +24,7 @@ Run options:
   -t, --trace            print every instruction with register/memory changes
   -m, --max-steps <n>    step limit (default 50,000,000)
   -h, --help
+  -v, --version
 
 Exit codes: 0 stopped via ecall 5 · 1 assembly error · 2 abnormal stop`;
 
@@ -50,8 +52,14 @@ const { values: flags, positionals } = parseArgs({
 		"max-steps": { type: "string", short: "m" },
 		output: { type: "string", short: "o" },
 		help: { type: "boolean", short: "h" },
+		version: { type: "boolean", short: "v" },
 	},
 });
+
+if (flags.version) {
+	console.log(version);
+	process.exit(0);
+}
 
 const [command, file] = positionals;
 

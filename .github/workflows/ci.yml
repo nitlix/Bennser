@@ -15,4 +15,6 @@ jobs:
             # Differential tests need Bennett (uni GitLab, not reachable from here) and skip themselves;
             # run `bun run sync` locally to rebuild + test against upstream.
             - run: bun run test
+            - run: bun run --cwd packages/cli build
+            - run: node packages/cli/dist/bennser.js run tests/programs/hello.s
             - run: bun run --cwd apps/web build

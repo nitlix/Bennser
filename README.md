@@ -44,6 +44,14 @@ Keys: ⌘↵ run, → step, ← step back, space run/pause. Panels can be hidden
 
 ## CLI
 
+Published on npm as [`bennser`](https://www.npmjs.com/package/bennser) (one bundled file, runs on Node ≥ 18.3 or Bun):
+
+```bash
+npx bennser run prog.s
+```
+
+From the repo:
+
 ```bash
 bun packages/cli/src/index.ts run tests/programs/hello.s
 echo "hi" | bun packages/cli/src/index.ts run tests/programs/echo_upper.s
@@ -52,3 +60,7 @@ bun packages/cli/src/index.ts asm prog.s -o prog.kmd
 ```
 
 See [NOTES.md](NOTES.md) for the dialect, the ecall table and every emulator quirk we reproduce.
+
+## License
+
+[Apache-2.0](LICENSE) for Bennser's own code. It grants no rights to the Bennser name or logo. The assembler in `packages/asm/wasm/` is compiled from the University of Manchester's riscv_tools and is not covered; see [NOTICE](NOTICE).

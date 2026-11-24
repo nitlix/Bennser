@@ -1,0 +1,88 @@
+name: publish-cli
+
+# Stages `bennser` on npm whenever packages/cli/package.json carries a version that
+# isn't on the registry yet. To release: bump that version and push to master, then
+# approve the staged version (npmjs.com → bennser → Versions, or `npm stage approve`).
+# Auth is npm trusted publishing (OIDC, no token), configured as stage-only.
+
+on:
+    push:
+        branches: [master]
+        paths:
+            - "packages/**"
+            - ".github/workflows/publish-cli.yml"
+    workflow_dispatch:
+
+concurrency:
+    group: publish-cli
+    cancel-in-progress: false
+
+permissions:
+    contents: write # tag + GitHub release
+    id-token: write # npm trusted publishing + provenance
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  registry-url: https://registry.npmjs.org
+
+            - name: Check whether this version is already published
+              id: version
+              run: |
+                  V=$(node -p "require('./packages/cli/package.json').version")
+                  echo "version=$V" >> "$GITHUB_OUTPUT"
+                  if npm view "bennser@$V" version >/dev/null 2>&1; then
+                    echo "bennser@$V is already on npm, nothing to do"
+                    echo "publish=false" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "publish=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - if: steps.version.outputs.publish == 'true'
+              run: bun install --frozen-lockfile
+            - if: steps.version.outputs.publish == 'true'
+              run: bun run test
+            - if: steps.version.outputs.publish == 'true'
+              run: bun run --cwd packages/cli build
+
+            - name: Smoke test the bundle under Node
+              if: steps.version.outputs.publish == 'true'
+              run: |
+                  test "$(node packages/cli/dist/bennser.js --version)" = "${{ steps.version.outputs.version }}"
+                  node packages/cli/dist/bennser.js run tests/programs/hello.s
+                  echo "hi" | node packages/cli/dist/bennser.js run tests/programs/echo_upper.s
+
+            - name: Stage on npm
+              id: stage
+              if: steps.version.outputs.publish == 'true'
+              working-directory: packages/cli
+              run: |
+                  npm install -g npm@latest # `npm stage` needs npm >= 11.15
+                  set +e
+                  out=$(npm stage publish --provenance --access public --ignore-scripts 2>&1)
+                  code=$?
+                  set -e
+                  echo "$out"
+                  # A version already staged (awaiting review/approval) isn't visible to `npm view` yet.
+                  if [ $code -ne 0 ] && echo "$out" | grep -qiE "previously published|already (staged|exists)|cannot publish over"; then
+                    echo "bennser@${{ steps.version.outputs.version }} is already staged, nothing to do"
+                    echo "staged=false" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+                  [ $code -eq 0 ] && echo "staged=true" >> "$GITHUB_OUTPUT"
+                  exit $code
+
+            - name: Tag and release
+              if: steps.stage.outputs.staged == 'true'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  V=${{ steps.version.outputs.version }}
+                  gh release create "cli-v$V" --target "$GITHUB_SHA" --title "bennser $V" \
+                    --notes "Staged on npm; live at https://www.npmjs.com/package/bennser/v/$V once approved."
