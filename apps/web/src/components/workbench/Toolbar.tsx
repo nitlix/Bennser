@@ -15,6 +15,7 @@ import { twMerge } from "tailwind-merge";
 import ButtonPrimary from "@/components/(buttons)/ButtonPrimary";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import Logo from "@/components/Logo";
+import GitHubButton from "@/components/GitHubButton";
 import PillBase from "@/components/PillBase";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { EXAMPLES } from "./examples";
@@ -245,6 +246,7 @@ export default function ({ api, layout, onExample }: Props) {
 						</>
 					)}
 				</Menu>
+				<GitHubButton />
 				<ThemeSwitcher />
 			</div>
 		</div>
