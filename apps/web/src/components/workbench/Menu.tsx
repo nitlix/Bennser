@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LuChevronDown } from "react-icons/lu";
 import { twMerge } from "tailwind-merge";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
@@ -31,6 +31,22 @@ export default function ({
 }: Props) {
 	const [open, setOpen] = useState(false);
 	const root = useRef<HTMLDivElement>(null);
+	const panel = useRef<HTMLDivElement>(null);
+
+	// Keep the panel inside the viewport (the toolbar wraps on phones, so the trigger isn't
+	// always at an edge). Uses `translate`, which doesn't fight the entrance `transform`.
+	useLayoutEffect(() => {
+		const el = panel.current;
+		if (!open || !el) return;
+		el.style.translate = "";
+		const gutter = 8;
+		const { left, right } = el.getBoundingClientRect();
+		const shift =
+			left < gutter
+				? gutter - left
+				: Math.min(0, window.innerWidth - gutter - right);
+		if (shift) el.style.translate = `${shift}px 0`;
+	}, [open]);
 
 	useEffect(() => {
 		if (!open) return;
@@ -63,6 +79,7 @@ export default function ({
 			</ButtonSecondary>
 			{open && (
 				<div
+					ref={panel}
 					role={panelRole}
 					className={twMerge(
 						s.panel,

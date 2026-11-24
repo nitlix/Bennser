@@ -41,12 +41,12 @@ export default function () {
 			title="Install the CLI"
 			align="right"
 			panelRole="dialog"
-			panelClassName="w-[min(30rem,calc(100vw-2rem))] gap-[.6rem] p-[.75rem]"
+			panelClassName="w-[min(33rem,calc(100vw-2rem))] grid-cols-[minmax(0,1fr)] gap-[.6rem] p-[.75rem]"
 		>
 			{() => (
 				<>
 					<div className="flex flex-col gap-[.2rem]">
-						<p className="text-[.875rem] font-[600]">
+						<p className="text-[.875rem] font-[600] text-black dark:text-white">
 							Install the Bennser CLI
 						</p>
 						<p className="text-[.8rem] leading-relaxed text-neutral-500">
@@ -77,11 +77,11 @@ export default function () {
 						))}
 					</div>
 
-					<div className="flex flex-row items-center gap-[.5rem] pl-[.85rem] pr-[.35rem] py-[.35rem] rounded-[.7rem] bg-neutral-950 text-neutral-100 font-mono text-[.8rem]">
+					<div className="flex flex-row items-center gap-[.5rem] pl-[.85rem] pr-[.35rem] py-[.35rem] min-w-0 rounded-[.7rem] bg-neutral-950 dark:bg-neutral-900 text-neutral-100 font-mono text-[.8rem]">
 						<span className="text-amber-400 select-none">
 							{current.prompt}
 						</span>
-						<code className="flex-1 overflow-x-auto whitespace-nowrap py-[.4rem]">
+						<code className="flex-1 min-w-0 overflow-x-auto whitespace-nowrap py-[.4rem]">
 							{current.command}
 						</code>
 						<button
@@ -89,7 +89,7 @@ export default function () {
 							onClick={copy}
 							aria-label="Copy install command"
 							title={copied ? "Copied" : "Copy"}
-							className="grid place-items-center shrink-0 size-[2.25rem] rounded-[.5rem] hover:bg-neutral-800"
+							className="grid place-items-center shrink-0 size-[2.25rem] rounded-[.5rem] hover:bg-neutral-800 dark:hover:bg-neutral-700"
 						>
 							{copied ? (
 								<LuCheck size={16} className="text-amber-400" />
