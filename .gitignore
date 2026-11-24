@@ -1,8 +1,6 @@
 node_modules
 upstream/
 build-native/
-packages/asm/wasm/*.js
-packages/asm/wasm/*.wasm
 *.kmd
 dist
 .DS_Store

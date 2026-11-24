@@ -18,7 +18,7 @@ Requires [Bun](https://bun.com), it's the package manager, script runner and the
 ```bash
 curl -fsSL https://bun.sh/install | bash   # if you don't have it
 bun install
-bun run build:asm      # needs emscripten (brew install emscripten)
+bun run build:asm      # optional: prebuilt WASM is committed; rebuilding needs emscripten
 bun run build:oracle   # native reference binaries for tests (clang++)
 bun run test
 ```
