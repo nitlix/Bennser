@@ -4,7 +4,12 @@ import { twMerge } from "tailwind-merge";
 const RAYS = Array.from({ length: 8 }, (_, i) => {
 	const a = (i * Math.PI) / 4;
 	const [c, s] = [Math.cos(a), Math.sin(a)];
-	return { x1: 50 + c * 21, y1: 50 + s * 21, x2: 50 + c * 44, y2: 50 + s * 44 };
+	return {
+		x1: 50 + c * 21,
+		y1: 50 + s * 21,
+		x2: 50 + c * 44,
+		y2: 50 + s * 44,
+	};
 });
 
 export default function ({

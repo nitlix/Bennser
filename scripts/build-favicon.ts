@@ -19,7 +19,11 @@ const RAYS = Array.from({ length: 8 }, (_, i) => {
 function roundRect(x: number, y: number, r: number) {
 	const qx = Math.abs(x - 0.5) - (0.5 - r);
 	const qy = Math.abs(y - 0.5) - (0.5 - r);
-	return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
+	return (
+		Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) +
+		Math.min(Math.max(qx, qy), 0) -
+		r
+	);
 }
 
 function capsule(x: number, y: number, [c, s]: readonly [number, number]) {
@@ -73,7 +77,10 @@ function chunk(type: string, data: Uint8Array) {
 function png(size: number, rgba: Uint8Array) {
 	const raw = Buffer.alloc((size * 4 + 1) * size);
 	for (let y = 0; y < size; y++) {
-		Buffer.from(rgba.subarray(y * size * 4, (y + 1) * size * 4)).copy(raw, y * (size * 4 + 1) + 1);
+		Buffer.from(rgba.subarray(y * size * 4, (y + 1) * size * 4)).copy(
+			raw,
+			y * (size * 4 + 1) + 1,
+		);
 	}
 	const ihdr = Buffer.alloc(13);
 	ihdr.writeUInt32BE(size, 0);
