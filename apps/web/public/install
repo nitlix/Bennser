@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Bennser installer (macOS / Linux):  curl -fsSL https://bennser.nitlix.com/install | bash
+#
+# 1. Installs Bun (https://bun.sh) if it isn't on PATH, using Bun's official installer.
+# 2. Installs the `bennser` npm package into ~/.bennser (override with BENNSER_INSTALL).
+# 3. Puts a `bennser` launcher in ~/.bennser/bin that runs it with Bun, and adds that to PATH.
+#
+# Re-run to update. Pin a version with:  curl -fsSL https://bennser.nitlix.com/install | bash -s 0.1.0
+# Uninstall: rm -rf ~/.bennser and remove the "# bennser" lines from your shell config.
+set -euo pipefail
+
+version=${1:-latest}
+install_dir=${BENNSER_INSTALL:-$HOME/.bennser}
+bin_dir=$install_dir/bin
+
+if [[ -t 1 ]]; then
+	reset='\033[0m' dim='\033[0;2m' red='\033[0;31m' green='\033[0;32m' bold='\033[1m'
+else
+	reset='' dim='' red='' green='' bold=''
+fi
+info() { echo -e "${dim}$*${reset}"; }
+error() {
+	echo -e "${red}error${reset}: $*" >&2
+	exit 1
+}
+tildify() { [[ $1 == "$HOME"/* ]] && echo "~${1#"$HOME"}" || echo "$1"; }
+
+case $(uname -s) in
+Darwin | Linux) ;;
+*) error "this installer is for macOS and Linux. On Windows run: powershell -c \"irm bennser.nitlix.com/install.ps1|iex\"" ;;
+esac
+
+# 1. Bun
+if command -v bun >/dev/null 2>&1; then
+	bun=$(command -v bun)
+	info "using bun $("$bun" --version) at $(tildify "$bun")"
+else
+	command -v curl >/dev/null 2>&1 || error "curl is required"
+	echo "Bun isn't installed; installing it first (https://bun.sh)"
+	curl -fsSL https://bun.sh/install | bash
+	bun=${BUN_INSTALL:-$HOME/.bun}/bin/bun
+	[[ -x $bun ]] || error "Bun installation failed"
+fi
+
+# 2. The package
+mkdir -p "$bin_dir" || error "can't create $(tildify "$install_dir")"
+[[ -f $install_dir/package.json ]] || echo '{ "private": true }' >"$install_dir/package.json"
+info "installing bennser@$version"
+"$bun" add --silent --cwd "$install_dir" "bennser@$version" ||
+	error "bun couldn't install bennser@$version"
+
+# 3. Launcher. Runs the bundle with Bun, so Node isn't needed.
+entry=$install_dir/node_modules/bennser/dist/bennser.js
+[[ -f $entry ]] || error "the package is missing $entry"
+cat >"$bin_dir/bennser" <<EOF
+#!/bin/sh
+bun=\$(command -v bun 2>/dev/null || echo "$bun")
+exec "\$bun" "$entry" "\$@"
+EOF
+chmod +x "$bin_dir/bennser"
+
+installed=$("$bin_dir/bennser" --version) || error "bennser was installed but doesn't run"
+echo -e "${green}bennser $installed${reset} installed to ${bold}$(tildify "$bin_dir/bennser")${reset}"
+
+# PATH
+if [[ :$PATH: == *:$bin_dir:* ]]; then
+	echo -e "\nRun ${bold}bennser --help${reset} to get started"
+	exit 0
+fi
+
+quoted_bin_dir=\"${bin_dir/#$HOME/\$HOME}\"
+added="" config=""
+add_line() { # file line
+	config=$1
+	[[ -f $1 ]] && grep -Fq "$2" "$1" && return 0
+	mkdir -p "$(dirname "$1")"
+	printf '\n# bennser\n%s\n' "$2" >>"$1" && added=$1
+}
+
+case $(basename "${SHELL:-sh}") in
+fish) add_line "$HOME/.config/fish/config.fish" "fish_add_path $quoted_bin_dir" ;;
+zsh) add_line "${ZDOTDIR:-$HOME}/.zshrc" "export PATH=$quoted_bin_dir:\$PATH" ;;
+bash)
+	if [[ $(uname -s) == Darwin ]]; then
+		add_line "$HOME/.bash_profile" "export PATH=$quoted_bin_dir:\$PATH"
+	else
+		add_line "$HOME/.bashrc" "export PATH=$quoted_bin_dir:\$PATH"
+	fi
+	;;
+esac
+
+if [[ -n $config ]]; then
+	[[ -n $added ]] && info "added $(tildify "$bin_dir") to \$PATH in $(tildify "$added")"
+	echo -e "\nTo get started, restart your shell (or run ${bold}exec \$SHELL${reset}), then:"
+	echo -e "  ${bold}bennser --help${reset}"
+else
+	echo -e "\nAdd this to your shell config, then restart your shell:"
+	echo -e "  ${bold}export PATH=$quoted_bin_dir:\$PATH${reset}"
+fi

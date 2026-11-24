@@ -1,6 +1,6 @@
 {
 	"name": "bennser",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Run University of Manchester (Bennett) RISC-V assembly anywhere: the upstream assembler (WASM) plus a bug-compatible emulator.",
 	"license": "Apache-2.0",
 	"keywords": [

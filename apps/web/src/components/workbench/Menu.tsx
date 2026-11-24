@@ -10,12 +10,25 @@ type Props = {
 	label: React.ReactNode;
 	title?: string;
 	align?: "left" | "right";
+	/** Square icon trigger without the chevron, sized like the other icon plates. */
+	icon?: boolean;
+	panelClassName?: string;
+	/** "dialog" when the panel holds controls rather than menu items. */
+	panelRole?: "menu" | "dialog";
 	/** Receives `close` so plain actions can dismiss the menu; toggles can keep it open. */
 	children: (close: () => void) => React.ReactNode;
 };
 
 /** Plate trigger with a popover list. Closes on outside click or Escape. */
-export default function ({ label, title, align = "left", children }: Props) {
+export default function ({
+	label,
+	title,
+	align = "left",
+	icon,
+	panelClassName,
+	panelRole = "menu",
+	children,
+}: Props) {
 	const [open, setOpen] = useState(false);
 	const root = useRef<HTMLDivElement>(null);
 
@@ -39,20 +52,23 @@ export default function ({ label, title, align = "left", children }: Props) {
 		<div ref={root} className="relative">
 			<ButtonSecondary
 				aria-expanded={open}
-				aria-haspopup="menu"
+				aria-haspopup={panelRole}
 				title={title}
+				aria-label={icon ? title : undefined}
+				icon={icon}
 				onClick={() => setOpen((o) => !o)}
 			>
 				{label}
-				<LuChevronDown size={16} />
+				{!icon && <LuChevronDown size={16} />}
 			</ButtonSecondary>
 			{open && (
 				<div
-					role="menu"
+					role={panelRole}
 					className={twMerge(
 						s.panel,
 						"absolute top-[calc(100%+.5rem)] z-[60] grid min-w-[14rem] p-[.35rem] rounded-[1rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 border-b-[3px]",
 						align === "right" ? "right-0" : "left-0",
+						panelClassName,
 					)}
 				>
 					{children(() => setOpen(false))}

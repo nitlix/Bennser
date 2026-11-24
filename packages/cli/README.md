@@ -9,6 +9,15 @@ There's also an in-browser visualiser: [Bennser Web](https://bennser.nitlix.com)
 
 ## Usage
 
+One-line install (installs Bun first if needed; re-run to update):
+
+```bash
+curl -fsSL https://bennser.nitlix.com/install | bash        # macOS / Linux
+powershell -c "irm bennser.nitlix.com/install.ps1|iex"     # Windows
+```
+
+Or straight from npm:
+
 ```bash
 npx bennser run prog.s            # or: bunx bennser run prog.s
 npm i -g bennser && bennser run prog.s

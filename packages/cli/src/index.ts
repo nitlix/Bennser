@@ -82,10 +82,23 @@ async function siblingFiles(path: string) {
 	return files;
 }
 
-async function toKmd(path: string) {
-	if (extname(path).toLowerCase() === ".kmd") return readFile(path, "utf8");
+/** Read a source file, or exit 1 with a one-line error instead of a stack trace. */
+async function readSource(path: string) {
+	try {
+		return await readFile(path, "utf8");
+	} catch (e) {
+		const code = (e as NodeJS.ErrnoException).code;
+		console.error(
+			`${c.red("error")} can't read ${path}${code === "ENOENT" ? ": no such file" : code ? ` (${code})` : ""}`,
+		);
+		process.exit(1);
+	}
+}
 
-	const result = await assemble(await readFile(path, "utf8"), {
+async function toKmd(path: string) {
+	if (extname(path).toLowerCase() === ".kmd") return readSource(path);
+
+	const result = await assemble(await readSource(path), {
 		filename: basename(path),
 		files: await siblingFiles(path),
 	});

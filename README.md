@@ -44,7 +44,14 @@ Keys: ⌘↵ run, → step, ← step back, space run/pause. Panels can be hidden
 
 ## CLI
 
-Published on npm as [`bennser`](https://www.npmjs.com/package/bennser) (one bundled file, runs on Node ≥ 18.3 or Bun):
+Install it with one line (installs [Bun](https://bun.sh) too if you don't have it; re-run to update):
+
+```bash
+curl -fsSL https://bennser.nitlix.com/install | bash                 # macOS / Linux
+powershell -c "irm bennser.nitlix.com/install.ps1|iex"              # Windows
+```
+
+It's also on npm as [`bennser`](https://www.npmjs.com/package/bennser) (one bundled file, runs on Node ≥ 18.3 or Bun):
 
 ```bash
 npx bennser run prog.s
