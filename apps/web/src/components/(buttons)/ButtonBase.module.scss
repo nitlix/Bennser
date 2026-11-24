@@ -35,7 +35,12 @@
 
 	:global([data-theme="dark"]) & {
 		--face: var(--color-neutral-900);
-		--face-hover: var(--color-neutral-800);
+		/* A step towards the lip, never onto it, so the plate keeps its edge. */
+		--face-hover: color-mix(
+			in oklab,
+			var(--color-neutral-800) 45%,
+			var(--color-neutral-900)
+		);
 		--edge: var(--color-neutral-800);
 		--base: var(--color-neutral-800);
 		--ink: var(--color-neutral-200);
@@ -47,8 +52,12 @@
 		--face-hover: var(--color-neutral-100);
 
 		:global([data-theme="dark"]) & {
-			--face: var(--color-neutral-800);
-			--face-hover: var(--color-neutral-800);
+			--face: color-mix(
+				in oklab,
+				var(--color-neutral-800) 55%,
+				var(--color-neutral-900)
+			);
+			--face-hover: var(--face);
 		}
 	}
 

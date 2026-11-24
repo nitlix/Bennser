@@ -7,9 +7,11 @@
 		"apps/*"
 	],
 	"scripts": {
+		"dev": "bun run --cwd apps/web dev",
 		"sync": "bun scripts/sync-upstream.ts",
 		"build:asm": "bun packages/asm/build.ts",
 		"build:oracle": "bun tests/build-oracle.ts",
+		"build:favicon": "bun scripts/build-favicon.ts",
 		"test": "bun test tests/",
 		"typecheck": "tsc --noEmit -p ."
 	},

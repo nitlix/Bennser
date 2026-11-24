@@ -14,6 +14,7 @@ import {
 import { twMerge } from "tailwind-merge";
 import ButtonPrimary from "@/components/(buttons)/ButtonPrimary";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
+import Logo from "@/components/Logo";
 import PillBase from "@/components/PillBase";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { EXAMPLES } from "./examples";
@@ -77,10 +78,8 @@ export default function ({ api, layout, onExample }: Props) {
 	const count = api.machine.cpu.instrCount;
 
 	return (
-		<div className="flex flex-row flex-wrap items-center gap-[.6rem] w-full px-[.75rem] pt-[.75rem] pb-[.25rem]">
-			<span className="text-[1.125rem] font-[700] tracking-tight mr-[.75rem] text-black dark:text-white">
-				Bennser
-			</span>
+		<div className="flex flex-row flex-wrap items-center gap-[.6rem] w-full px-[.75rem] pt-[.375rem] pb-[.25rem]">
+			<Logo className="mr-[.75rem]" />
 
 			<Menu label={<LuFileCode size={16} />} title="Load an example">
 				{(close) =>

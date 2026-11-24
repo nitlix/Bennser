@@ -1,0 +1,45 @@
+/*
+ * Dropdown entrance: the panel fades in, then each direct child follows 25ms after the last.
+ * Applies to every <Menu>, whatever it renders inside.
+ */
+$step: 25ms;
+$max: 24;
+
+.panel {
+	animation: panel-in 120ms ease-out both;
+
+	> * {
+		animation: item-in 180ms ease-out both;
+	}
+
+	@for $i from 1 through $max {
+		> :nth-child(#{$i}) {
+			animation-delay: ($i - 1) * $step;
+		}
+	}
+
+	> :nth-child(n + #{$max + 1}) {
+		animation-delay: $max * $step;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		&,
+		> * {
+			animation: none;
+		}
+	}
+}
+
+@keyframes panel-in {
+	from {
+		opacity: 0;
+		transform: translateY(-0.25rem);
+	}
+}
+
+@keyframes item-in {
+	from {
+		opacity: 0;
+		transform: translateY(-0.2rem);
+	}
+}

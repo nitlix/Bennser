@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LuChevronDown } from "react-icons/lu";
 import { twMerge } from "tailwind-merge";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
+import s from "./Menu.module.scss";
 
 type Props = {
 	label: React.ReactNode;
@@ -43,18 +44,13 @@ export default function ({ label, title, align = "left", children }: Props) {
 				onClick={() => setOpen((o) => !o)}
 			>
 				{label}
-				<LuChevronDown
-					size={16}
-					className={twMerge(
-						"transition-transform",
-						open && "rotate-180",
-					)}
-				/>
+				<LuChevronDown size={16} />
 			</ButtonSecondary>
 			{open && (
 				<div
 					role="menu"
 					className={twMerge(
+						s.panel,
 						"absolute top-[calc(100%+.5rem)] z-[60] grid min-w-[14rem] p-[.35rem] rounded-[1rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 border-b-[3px]",
 						align === "right" ? "right-0" : "left-0",
 					)}

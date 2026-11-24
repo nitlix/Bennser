@@ -30,7 +30,7 @@ import { GeistSans } from "@/fonts/Geist/GeistSans";
 // =====================
 import { metaGen, setDefaults } from "nitlix-metagen";
 setDefaults({
-	title: "Bennser",
+	title: "Bennser Web",
 	description:
 		"Bennett's Manchester RISC-V dialect, running anywhere: CLI and in-browser visualiser.",
 });
