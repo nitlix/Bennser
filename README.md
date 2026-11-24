@@ -8,7 +8,7 @@ packages/asm    upstream Manchester assembler compiled to WASM (single-file ESM,
 packages/cli    `bennser run prog.s` / `bennser asm prog.s`
 apps/web        in-browser visualiser (NNT template / vinext): datapath, registers, memory, step back
 tests/          differential tests vs. the upstream C++ (native build)
-upstream/       Bennett source mirror (git-ignored, see NOTES.md)
+upstream/       Bennett checkout (git-ignored), pinned by upstream.lock.json
 ```
 
 ## Setup
@@ -18,9 +18,19 @@ Requires [Bun](https://bun.com), it's the package manager, script runner and the
 ```bash
 curl -fsSL https://bun.sh/install | bash   # if you don't have it
 bun install
-bun run build:asm      # optional: prebuilt WASM is committed; rebuilding needs emscripten
-bun run build:oracle   # native reference binaries for tests (clang++)
 bun run test
+```
+
+The prebuilt WASM is committed, so that's all you need. Upstream differential tests skip themselves unless the native oracle is built.
+
+### Updating from Bennett
+
+Bennett lives on the uni GitLab (campus network or VPN). The assembler is compiled from it; the emulator is a hand port, so emulator changes upstream need porting to `packages/core`.
+
+```bash
+bun run sync                       # latest Bennett: fetch, pin in upstream.lock.json, rebuild WASM + oracle, test
+bun run sync --tools origin/main   # use unreleased riscv_tools fixes instead of Bennett's pinned version
+bun run sync --locked              # reproduce the pinned build exactly (needs emscripten + clang++)
 ```
 
 ## Web visualiser

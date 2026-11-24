@@ -4,3 +4,4 @@ build-native/
 *.kmd
 dist
 .DS_Store
+upstream.old-*

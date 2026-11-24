@@ -1,0 +1,12 @@
+{
+	"bennett": {
+		"url": "https://gitlab.cs.man.ac.uk/cadtools/bennett.git",
+		"commit": "51bf480d0c97bbdd999186dd1a61472c5bbb5e8c",
+		"date": "2026-11-06T14:41:01Z"
+	},
+	"riscv_tools": {
+		"url": "https://gitlab.cs.man.ac.uk/cadtools/riscv_tools.git",
+		"commit": "867bee2c2080602b8f86180a0d0b8ff71751c33d",
+		"date": "2026-08-06T15:48:05+01:00"
+	}
+}
