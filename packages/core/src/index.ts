@@ -4,3 +4,4 @@ export * from "./kmd";
 export * from "./Machine";
 export * from "./registers";
 export * from "./decode";
+export * from "./csrs";

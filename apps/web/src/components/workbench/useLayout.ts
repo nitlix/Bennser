@@ -8,6 +8,7 @@ export const PANELS = [
 	{ id: "datapath", title: "Datapath" },
 	{ id: "console", title: "Console" },
 	{ id: "registers", title: "Registers" },
+	{ id: "csrs", title: "CSRs" },
 	{ id: "memory", title: "Memory" },
 ] as const;
 
@@ -24,7 +25,7 @@ export const DEFAULT_LAYOUT: Layout = {
 	version: 1,
 	columns: [
 		{ size: 1, cells: [{ id: "source", size: 1 }] },
-		// Datapath starts hidden; turn it on from the View menu.
+		// Datapath and CSRs start hidden; turn them on from the View menu.
 		{ size: 1.2, cells: [{ id: "console", size: 1 }] },
 		{
 			size: 0.9,

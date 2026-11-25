@@ -225,4 +225,44 @@ export class Machine {
 	reg(n: number) {
 		return this.cpu.registers[n]! | 0;
 	}
+
+	/**
+	 * External register write (Bennett's register editor). Like upstream's reg_write,
+	 * x0 is ignored. Not recorded in the undo history: Bennett has none either.
+	 */
+	setReg(n: number, value: number) {
+		if (n <= 0 || n > 31) return;
+		this.cpu.registers[n] = value >>> 0;
+	}
+
+	/**
+	 * Bennett's "Zero registers" button (CPUView::onClickZeroRegisters): writes 0 to every
+	 * register in the RISC-V "Current" bank, which is x0–x31 plus PC (all editable and
+	 * zero-editable). x0 goes through reg_write (ignored); PC goes through pc_write.
+	 * Like setReg, not recorded in the undo history.
+	 */
+	zeroRegs() {
+		for (let n = 1; n < 32; n++) this.setReg(n, 0);
+		this.cpu.pcWrite(0);
+	}
+
+	/**
+	 * External byte write (Bennett's memory editor). Goes through the CPU's normal write
+	 * path, so out-of-range addresses are ignored as in RV32.cpp. Not recorded in the undo
+	 * history or in any step's trace.
+	 */
+	setMem(address: number, byte: number) {
+		const trace = this.cpu.lastTrace;
+		this.cpu.lastTrace = null;
+		this.cpu.memWrite(Size.Byte, address, byte & 0xff);
+		this.cpu.lastTrace = trace;
+	}
+
+	/** Like setMem, for a whole 32-bit word. The address is aligned down to a word. */
+	setWord(address: number, word: number) {
+		const trace = this.cpu.lastTrace;
+		this.cpu.lastTrace = null;
+		this.cpu.memWrite(Size.Word, address & ~3, word >>> 0);
+		this.cpu.lastTrace = trace;
+	}
 }

@@ -7,6 +7,8 @@
  */
 .table {
 	--line: var(--color-neutral-200);
+	--line-hover: var(--color-neutral-400);
+	--line-edit: var(--color-black);
 	--cell: var(--color-white);
 	--read: color-mix(in oklab, var(--color-sky-500) 15%, var(--color-white));
 	--written: color-mix(
@@ -20,6 +22,8 @@
 
 	:global([data-theme="dark"]) & {
 		--line: var(--color-neutral-800);
+		--line-hover: var(--color-neutral-600);
+		--line-edit: var(--color-white);
 		--cell: var(--color-black);
 		--read: color-mix(
 			in oklab,
@@ -49,10 +53,70 @@
 	&.written {
 		background: var(--written);
 	}
+
+	/*
+	 * Editable cells outline themselves over the 1px gap, so the grid line around them
+	 * brightens. Raised above the neighbours, which would otherwise paint over the shadow.
+	 * Sides on the panel's rim are clipped by the scroller, and the top row's top sits under
+	 * the sticky PC row, so those sides draw inset instead (--l/--r/--t, see .grid). The
+	 * bottom row gets its outline from the scroller's 1px bottom padding.
+	 */
+	--ring: transparent;
+	box-shadow:
+		0 0 0 1px var(--ring),
+		inset calc(var(--l, 0) * 1px) 0 0 0 var(--ring),
+		inset calc(var(--r, 0) * -1px) 0 0 0 var(--ring),
+		inset 0 calc(var(--t, 0) * 1px) 0 0 var(--ring);
+
+	&.editable {
+		@apply relative cursor-text;
+
+		&:hover {
+			@apply z-[1];
+			--ring: var(--line-hover);
+		}
+	}
+
+	&.editing,
+	&.editing:hover {
+		@apply z-[2];
+		--ring: var(--line-edit);
+	}
+
+	&.invalid,
+	&.invalid:hover {
+		--ring: var(--color-red-500);
+	}
+}
+
+/* Column-major 2×16: children 1–16 are the left column, 17–32 the right. */
+.grid > .cell {
+	&:nth-child(-n + 16) {
+		--l: 1;
+	}
+	&:nth-child(n + 17) {
+		--r: 1;
+	}
+	&:nth-child(1),
+	&:nth-child(17) {
+		--t: 1;
+	}
+}
+
+/* Sits exactly where the value text was: same font, no chrome. */
+.input {
+	@apply min-w-0 w-[7rem] p-0 bg-transparent text-right outline-none;
+	color: var(--line-edit);
+	font: inherit;
+
+	/* Stop iOS zooming in on focus. */
+	@media (pointer: coarse) {
+		@apply text-[1rem];
+	}
 }
 
 /* The PC row stands apart from the grid and stays put while the registers scroll. */
 .pc {
-	@apply sticky top-0 z-[1] h-auto py-[.75rem];
+	@apply sticky top-0 z-[3] h-auto py-[.75rem];
 	box-shadow: 0 1px 0 var(--line);
 }

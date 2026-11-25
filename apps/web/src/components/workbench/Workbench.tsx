@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import PanelBase from "@/components/PanelBase";
 import Console from "./Console";
+import Csrs from "./Csrs";
 import Datapath from "./Datapath";
 import Dock from "./Dock";
 import FontSizeSlider, { FONT_SIZES } from "./FontSizeSlider";
@@ -106,6 +108,24 @@ export default function () {
 						<span className="hidden xl:inline text-[.8rem] text-neutral-500">
 							Click line number for breakpoint
 						</span>
+						{api.breakpoints.size > 0 && (
+							<ButtonSecondary
+								size="small"
+								aria-pressed={api.breakpointsEnabled}
+								onClick={() =>
+									api.setBreakpointsEnabled(
+										!api.breakpointsEnabled,
+									)
+								}
+								title={
+									api.breakpointsEnabled
+										? "Breakpoints are on: runs and multisteps stop at them. Click to turn all off."
+										: "Breakpoints are off: runs ignore them. Click to turn them back on."
+								}
+							>
+								Breakpoints
+							</ButtonSecondary>
+						)}
 						<FontSizeSlider
 							value={fontSize}
 							onChange={setFontSize}
@@ -120,6 +140,7 @@ export default function () {
 					onSubmit={api.run}
 					breakpoints={api.breakpoints}
 					onToggleBreakpoint={api.toggleBreakpoint}
+					breakpointsEnabled={api.breakpointsEnabled}
 					pcLine={api.pcLine}
 					fontSize={fontSize}
 				/>
@@ -132,6 +153,7 @@ export default function () {
 						kmd={kmd}
 						pc={machine.cpu.pc}
 						breakpoints={api.breakpointAddresses}
+						breakpointsEnabled={api.breakpointsEnabled}
 						onToggleBreakpoint={api.toggleBreakpoint}
 						touched={touched}
 					/>
@@ -157,15 +179,21 @@ export default function () {
 				registers={machine.cpu.registers}
 				pc={machine.cpu.pc}
 				trace={lastTrace}
+				onEdit={api.setReg}
+				onZero={api.zeroRegs}
 			/>
 		),
+		csrs: () => <Csrs csr={machine.cpu.csr} trace={lastTrace} />,
 		memory: () => (
 			<MemoryView
 				memory={machine.cpu.memory}
-				symbols={kmd?.symbols ?? []}
+				kmd={kmd}
 				access={lastTrace?.mem ?? []}
 				home={home}
-				sp={machine.cpu.registers[2]!}
+				pc={machine.cpu.pc}
+				registers={machine.cpu.registers}
+				onEdit={api.setMem}
+				onEditWord={api.setWord}
 			/>
 		),
 	};

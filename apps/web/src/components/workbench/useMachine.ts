@@ -25,6 +25,9 @@ export const SPEEDS = [
 	{ label: "1k/s", name: "Very fast", perSecond: 1000 },
 ] as const;
 
+/** Instructions per step press, as in Bennett's Step Speed menu ("Multistep" when not 1). */
+export const STEP_SIZES = [1, 2, 5, 10, 20, 50] as const;
+
 const HISTORY = 200_000;
 const MAX_PER_FRAME = 250_000;
 
@@ -93,7 +96,27 @@ export function useMachine(initialSource: string) {
 			(v as number) >= 0 &&
 			(v as number) < SPEEDS.length,
 	);
+	const [stepSize, setStepSize] = useStored<number>(
+		"bennser:stepSize",
+		1,
+		(v) => STEP_SIZES.includes(v as (typeof STEP_SIZES)[number]),
+	);
+	// How many instructions the latest step press actually ran, so ← exactly undoes a
+	// multistep that stopped early. Tagged with the history top it left behind: if anything
+	// else (a run, a reload, another ←) has moved the machine since, it no longer applies.
+	const lastStep = useRef<{
+		count: number;
+		top: Machine["history"][number] | undefined;
+	} | null>(null);
 	const [breakpoints, setBreakpoints] = useState<Set<number>>(new Set());
+	// Bennett's "Breakpoint Global Enable": off keeps breakpoints listed but inactive.
+	const [breakpointsEnabled, setBreakpointsEnabled] = useStored(
+		"bennser:breakpointsEnabled",
+		true,
+		(v) => typeof v === "boolean",
+	);
+	const breakpointsEnabledRef = useRef(breakpointsEnabled);
+	breakpointsEnabledRef.current = breakpointsEnabled;
 	const [busy, setBusy] = useState(false);
 
 	const loaded = assembled !== null;
@@ -113,9 +136,11 @@ export function useMachine(initialSource: string) {
 	useEffect(() => {
 		machine.cpu.breakpoints = breakpointAddresses.map((address) => ({
 			address,
-			active: true,
+			active: breakpointsEnabled,
 		}));
-	}, [breakpointAddresses, machine]);
+		// A trap latched before disabling must not stop the next run chunk.
+		if (!breakpointsEnabled) machine.cpu.trapped = false;
+	}, [breakpointAddresses, breakpointsEnabled, machine]);
 
 	const stop = useCallback(
 		(why: StopReason | null) => {
@@ -187,7 +212,10 @@ export function useMachine(initialSource: string) {
 			machine.cpu.breakpoints = resolveBreakpoints(
 				machine.kmd,
 				breakpoints,
-			).map((address) => ({ address, active: true }));
+			).map((address) => ({
+				address,
+				active: breakpointsEnabledRef.current,
+			}));
 			if (input) machine.input(input);
 			setAssembled({ source: text, kmd: result.kmd });
 			setReason(null);
@@ -244,18 +272,42 @@ export function useMachine(initialSource: string) {
 		if (finished) return;
 		setRunning(null);
 		machine.pause();
-		setReason(machine.step());
-		rerender();
-	}, [stale, finished, load, machine, setRunning]);
 
+		// Multistep: up to stepSize instructions, stopping early on anything that stops a
+		// run. Breakpoints only cut a multistep short; a single step walks through them.
+		let why: StopReason | null = null;
+		let executed = 0;
+		for (let i = 0; i < stepSize; i++) {
+			const top = machine.history.at(-1);
+			why = machine.step();
+			if (machine.history.at(-1) !== top) executed++;
+			if (why) break;
+			if (stepSize > 1 && machine.cpu.trapped) {
+				why = "breakpoint";
+				break;
+			}
+		}
+
+		lastStep.current = { count: executed, top: machine.history.at(-1) };
+		setReason(why);
+		rerender();
+	}, [stale, finished, load, machine, setRunning, stepSize]);
+
+	/** Undo the latest step press (however far it got), otherwise stepSize instructions. */
 	const back = useCallback(() => {
 		if (stale) return;
 		setRunning(null);
 		machine.pause();
-		machine.undo();
+		const last = lastStep.current;
+		const count =
+			last?.count && last.top === machine.history.at(-1)
+				? last.count
+				: stepSize;
+		lastStep.current = null;
+		for (let i = 0; i < count && machine.undo(); i++);
 		setReason(null);
 		rerender();
-	}, [stale, machine, setRunning]);
+	}, [stale, machine, setRunning, stepSize]);
 
 	const sendInput = useCallback(
 		(text: string) => {
@@ -287,6 +339,39 @@ export function useMachine(initialSource: string) {
 		setBreakpoints(new Set(lines));
 	}, []);
 
+	/** Edit a register; safe mid-run, the next frame just carries on with the new value. */
+	const setReg = useCallback(
+		(n: number, value: number) => {
+			machine.setReg(n, value);
+			rerender();
+		},
+		[machine],
+	);
+
+	/** Bennett's "Zero registers": x1–x31 and PC to 0. Safe mid-run, not undoable. */
+	const zeroRegs = useCallback(() => {
+		machine.zeroRegs();
+		rerender();
+	}, [machine]);
+
+	/** Edit one memory byte; like setReg, safe mid-run and not undoable. */
+	const setMem = useCallback(
+		(address: number, byte: number) => {
+			machine.setMem(address, byte);
+			rerender();
+		},
+		[machine],
+	);
+
+	/** Edit one aligned memory word; same rules as setMem. */
+	const setWord = useCallback(
+		(address: number, word: number) => {
+			machine.setWord(address, word);
+			rerender();
+		},
+		[machine],
+	);
+
 	const toggleBreakpoint = useCallback((line: number) => {
 		setBreakpoints((prev) => {
 			const next = new Set(prev);
@@ -311,8 +396,12 @@ export function useMachine(initialSource: string) {
 		pcLine,
 		speedIndex,
 		setSpeedIndex,
+		stepSize,
+		setStepSize,
 		breakpoints,
 		breakpointAddresses,
+		breakpointsEnabled,
+		setBreakpointsEnabled,
 		load,
 		run,
 		animate,
@@ -321,6 +410,10 @@ export function useMachine(initialSource: string) {
 		step,
 		back,
 		sendInput,
+		setReg,
+		zeroRegs,
+		setMem,
+		setWord,
 		toggleBreakpoint,
 	};
 }

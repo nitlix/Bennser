@@ -12,6 +12,17 @@
 	line-height: var(--line);
 }
 
+/* Breakpoints globally disabled: still listed, but faded so it's clear they won't stop. */
+.breakpointsOff {
+	.line.breakpoint .dot {
+		@apply bg-rose-500/35;
+	}
+
+	.breakpointBand {
+		@apply bg-rose-500/3;
+	}
+}
+
 .gutter {
 	@apply flex flex-col shrink-0 w-[3.75rem] overflow-hidden select-none py-[.75rem] border-r-[1px] border-neutral-200 dark:border-neutral-800;
 }

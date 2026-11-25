@@ -9,6 +9,8 @@ type Props = {
 	pc: number;
 	/** Resolved breakpoint addresses. */
 	breakpoints: number[];
+	/** Global breakpoint enable: when off, breakpoints are dimmed. */
+	breakpointsEnabled: boolean;
 	/** Toggles by source line, so the editor and this listing share one set. */
 	onToggleBreakpoint: (sourceLine: number) => void;
 	/** Addresses touched by the last memory access, to flash data rows. */
@@ -36,6 +38,7 @@ export default function ({
 	kmd,
 	pc,
 	breakpoints,
+	breakpointsEnabled,
 	onToggleBreakpoint,
 	touched,
 }: Props) {
@@ -88,7 +91,9 @@ export default function ({
 								className={twMerge(
 									"size-[.6rem] rounded-full",
 									hasBp
-										? "bg-rose-500"
+										? breakpointsEnabled
+											? "bg-rose-500"
+											: "bg-rose-500/35"
 										: isCode
 											? "group-hover:bg-rose-500/40"
 											: "",

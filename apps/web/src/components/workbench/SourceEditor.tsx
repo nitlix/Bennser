@@ -13,6 +13,8 @@ type Props = {
 	onSubmit: () => void;
 	breakpoints: Set<number>;
 	onToggleBreakpoint: (line: number) => void;
+	/** Global breakpoint enable: when off, breakpoints stay shown but dimmed. */
+	breakpointsEnabled: boolean;
 	/** Source line of the next instruction to execute, when paused on up-to-date code. */
 	pcLine: number | null;
 	/** Code font size in rem. */
@@ -26,6 +28,7 @@ export default function ({
 	onSubmit,
 	breakpoints,
 	onToggleBreakpoint,
+	breakpointsEnabled,
 	pcLine,
 	fontSize,
 }: Props) {
@@ -91,7 +94,10 @@ export default function ({
 	return (
 		<>
 			<div
-				className={s.editor}
+				className={twMerge(
+					s.editor,
+					!breakpointsEnabled && s.breakpointsOff,
+				)}
 				style={{ "--font": `${fontSize}rem` } as React.CSSProperties}
 			>
 				<div

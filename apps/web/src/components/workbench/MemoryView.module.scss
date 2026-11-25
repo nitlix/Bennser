@@ -1,0 +1,49 @@
+@reference "../../app/globals.css";
+
+/*
+ * One hex byte or word. Editable cells get the register table's ring: a faint neutral outline on
+ * hover, the text colour while editing, red while the typed value is invalid.
+ */
+.cell {
+	--ring: transparent;
+	--line-hover: var(--color-neutral-400);
+	--line-edit: var(--color-black);
+
+	@apply rounded-[.2rem] px-[.1rem] cursor-text transition-shadow;
+	box-shadow: 0 0 0 1px var(--ring);
+
+	:global([data-theme="dark"]) & {
+		--line-hover: var(--color-neutral-600);
+		--line-edit: var(--color-white);
+	}
+
+	&:hover {
+		--ring: var(--line-hover);
+	}
+
+	&.editing,
+	&.editing:hover {
+		--ring: var(--line-edit);
+	}
+
+	&.invalid,
+	&.invalid:hover {
+		--ring: var(--color-red-500);
+	}
+}
+
+/* Sits exactly where the hex digits were: same font, no chrome. */
+.input {
+	@apply w-[2ch] p-0 bg-transparent outline-none;
+	color: var(--line-edit);
+	font: inherit;
+
+	&.word {
+		@apply w-[8ch];
+	}
+
+	/* Stop iOS zooming in on focus. */
+	@media (pointer: coarse) {
+		@apply text-[1rem];
+	}
+}

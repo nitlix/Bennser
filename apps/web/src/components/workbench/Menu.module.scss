@@ -1,12 +1,27 @@
 /*
- * Dropdown entrance: the panel fades in, then each direct child follows 25ms after the last.
+ * Dropdown panel. Portalled to <body> and placed with fixed coordinates by Menu.tsx, which
+ * also sets `data-side` ("bottom" or "top") and caps max-height when neither side fits.
+ *
+ * Entrance: the panel fades in, then each direct child follows 25ms after the last. Both
+ * slide in from the trigger's side (`--menu-from` flips for upward panels).
  * Applies to every <Menu>, whatever it renders inside.
  */
 $step: 25ms;
 $max: 24;
 
 .panel {
+	--menu-from: -1;
+	position: fixed;
+	// Above panels, sticky table headers and the dock's drop overlays.
+	z-index: 100;
+	max-width: calc(100vw - 1rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
 	animation: panel-in 120ms ease-out both;
+
+	&[data-side="top"] {
+		--menu-from: 1;
+	}
 
 	> * {
 		animation: item-in 180ms ease-out both;
@@ -33,13 +48,13 @@ $max: 24;
 @keyframes panel-in {
 	from {
 		opacity: 0;
-		transform: translateY(-0.25rem);
+		transform: translateY(calc(0.25rem * var(--menu-from)));
 	}
 }
 
 @keyframes item-in {
 	from {
 		opacity: 0;
-		transform: translateY(-0.2rem);
+		transform: translateY(calc(0.2rem * var(--menu-from)));
 	}
 }

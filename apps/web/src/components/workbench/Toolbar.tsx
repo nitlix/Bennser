@@ -23,7 +23,7 @@ import { EXAMPLES } from "./examples";
 import Menu, { MenuItem } from "./Menu";
 import type { LayoutApi } from "./useLayout";
 import { PANELS } from "./useLayout";
-import { type MachineApi, SPEEDS } from "./useMachine";
+import { type MachineApi, SPEEDS, STEP_SIZES } from "./useMachine";
 
 const STOPPED: Record<string, { text: string; tone: string }> = {
 	stopped: { text: "Finished", tone: "bg-emerald-500" },
@@ -74,8 +74,12 @@ type Props = {
 	onExample: (id: string) => void;
 };
 
+/** "1 instruction" / "10 instructions". */
+const instructions = (n: number) => `${n} instruction${n === 1 ? "" : "s"}`;
+
 export default function ({ api, layout, onExample }: Props) {
 	const { text, tone } = status(api);
+	const multi = api.stepSize > 1;
 	const live = api.loaded && !api.stale;
 	const count = api.machine.cpu.instrCount;
 
@@ -126,7 +130,11 @@ export default function ({ api, layout, onExample }: Props) {
 					icon
 					onClick={api.back}
 					disabled={!live || !api.machine.canUndo}
-					title="Step back (←)"
+					title={
+						multi
+							? `Step back up to ${instructions(api.stepSize)}, undoing the last multistep (←)`
+							: "Step back (←)"
+					}
 					aria-label="Step back"
 				>
 					<LuChevronLeft size={16} />
@@ -134,11 +142,39 @@ export default function ({ api, layout, onExample }: Props) {
 				<ButtonSecondary
 					onClick={api.step}
 					disabled={api.busy || (live && api.finished)}
-					title="Step one instruction (→)"
+					title={
+						multi
+							? `Multistep: ${instructions(api.stepSize)}, stopping early at a breakpoint or the end (→)`
+							: "Single step: one instruction (→)"
+					}
 				>
 					Step
 					<LuChevronRight size={16} />
 				</ButtonSecondary>
+				<Menu label={`×${api.stepSize}`} title="Instructions per step">
+					{(close) =>
+						STEP_SIZES.map((n) => (
+							<MenuItem
+								key={n}
+								role="menuitemradio"
+								aria-checked={n === api.stepSize}
+								onClick={() => {
+									api.setStepSize(n);
+									close();
+								}}
+							>
+								<LuCheck
+									size={16}
+									className={twMerge(
+										"shrink-0 text-amber-500",
+										n !== api.stepSize && "invisible",
+									)}
+								/>
+								{instructions(n)} per step
+							</MenuItem>
+						))
+					}
+				</Menu>
 				<ButtonSecondary
 					icon
 					onClick={api.restart}
