@@ -91,7 +91,7 @@ export default function ({
 							? "The program is waiting for input…"
 							: "Type input for the program, Enter to send"
 					}
-					className="flex-1 min-w-0 h-full bg-transparent font-mono text-[1rem] md:text-[.875rem] leading-none text-black dark:text-white shadow-none outline-none focus:outline-none"
+					className="flex-1 min-w-0 h-full bg-transparent text-[1rem] md:text-[.875rem] leading-none text-black dark:text-white shadow-none outline-none focus:outline-none"
 				/>
 				<button
 					type="submit"

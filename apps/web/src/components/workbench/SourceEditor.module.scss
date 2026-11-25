@@ -128,6 +128,11 @@
 	}
 }
 
+/* Where dragged text will land (useDragMove). Positioned in px by the hook. */
+.dropCaret {
+	@apply absolute w-[.125rem] -ml-[.0625rem] rounded-full bg-amber-500 pointer-events-none;
+}
+
 .errors {
 	@apply shrink-0 max-h-[9rem] overflow-auto border-t-[1px] border-neutral-200 dark:border-neutral-800 text-[.875rem];
 

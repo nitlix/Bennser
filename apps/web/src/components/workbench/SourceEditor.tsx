@@ -5,6 +5,7 @@ import { Fragment, useEffect, useMemo, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { tokenizeLine } from "./highlight";
 import s from "./SourceEditor.module.scss";
+import { useDragMove } from "./useDragMove";
 
 type Props = {
 	value: string;
@@ -36,6 +37,7 @@ export default function ({
 	const gutter = useRef<HTMLDivElement>(null);
 	const bands = useRef<HTMLDivElement>(null);
 	const code = useRef<HTMLPreElement>(null);
+	const drag = useDragMove(area);
 	const lines = useMemo(() => value.split("\n"), [value]);
 	const lineCount = lines.length;
 	const highlighted = useMemo(() => lines.map(tokenizeLine), [lines]);
@@ -182,6 +184,8 @@ export default function ({
 						spellCheck={false}
 						onChange={(e) => onChange(e.target.value)}
 						onKeyDown={onKeyDown}
+						onMouseDown={drag.onMouseDown}
+						onMouseMove={drag.onMouseMove}
 						onScroll={(e) =>
 							syncScroll(
 								e.currentTarget.scrollTop,
@@ -191,6 +195,16 @@ export default function ({
 						placeholder="; write Manchester RISC-V here, then hit Run (⌘↵)"
 						data-lenis-prevent
 					/>
+					{drag.caret && (
+						<div
+							className={s.dropCaret}
+							style={{
+								left: drag.caret.left,
+								top: drag.caret.top,
+								height: drag.caret.height,
+							}}
+						/>
+					)}
 				</div>
 			</div>
 

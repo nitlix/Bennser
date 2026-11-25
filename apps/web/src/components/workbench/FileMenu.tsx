@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-	LuCheck,
 	LuChevronDown,
 	LuDownload,
 	LuFileCode,
@@ -12,6 +11,7 @@ import {
 	LuUpload,
 } from "react-icons/lu";
 import { twMerge } from "tailwind-merge";
+import Sunburst from "@/components/Sunburst";
 import { EXAMPLES } from "./examples";
 import s from "./FileMenu.module.scss";
 import Menu, { MenuItem, SubMenu } from "./Menu";
@@ -196,16 +196,16 @@ export default function ({ files, source, onSave, onOpen, saveCount }: Props) {
 													onOpen(entry.name, text);
 												}}
 											>
-												<LuCheck
-													size={16}
+												{/* File-type mark (one language for now); amber = open. */}
+												<Sunburst
 													className={twMerge(
-														"shrink-0 text-amber-500",
-														entry.name !==
+														"size-[1rem] text-neutral-400 dark:text-neutral-600",
+														entry.name ===
 															files.name &&
-															"invisible",
+															"text-amber-500 dark:text-amber-500",
 													)}
 												/>
-												<span className="truncate font-mono text-[.8rem]">
+												<span className="truncate text-[.8rem]">
 													{entry.name}
 												</span>
 												<span className="ml-auto pl-[.75rem] shrink-0 text-[.8rem] text-neutral-500 font-[400]">
@@ -258,7 +258,7 @@ export default function ({ files, source, onSave, onOpen, saveCount }: Props) {
 						>
 							<LuDownload size={16} className="shrink-0" />
 							Download
-							<span className="ml-auto pl-[.75rem] truncate font-mono text-[.8rem] text-neutral-500 font-[400]">
+							<span className="ml-auto pl-[.75rem] truncate text-[.8rem] text-neutral-500 font-[400]">
 								{files.name}
 							</span>
 						</MenuItem>

@@ -207,7 +207,7 @@ export default function ({
 						: "Address to view: a number (decimal, or 0x hex), pc, a register or a label, with + - * / and brackets, e.g. sp+8"
 				}
 				className={twMerge(
-					"w-[8.5rem] h-[1.85rem] px-[.6rem] rounded-[.55rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white font-mono text-[1rem] md:text-[.75rem] outline-none",
+					"w-[8.5rem] h-[1.85rem] px-[.6rem] rounded-[.55rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white text-[1rem] md:text-[.8rem] outline-none",
 					invalid && "border-red-500 dark:border-red-500",
 				)}
 			/>

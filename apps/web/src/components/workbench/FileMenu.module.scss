@@ -15,7 +15,7 @@
 }
 
 .name {
-	@apply min-w-[3rem] max-w-[11rem] bg-transparent outline-none font-mono text-[.8rem] font-[500] text-neutral-700 dark:text-neutral-300;
+	@apply min-w-[3rem] max-w-[11rem] bg-transparent outline-none text-[.8rem] font-[500] text-neutral-700 dark:text-neutral-300;
 	/* Grow with the name where supported; the min/max keep it sane elsewhere. */
 	field-sizing: content;
 
