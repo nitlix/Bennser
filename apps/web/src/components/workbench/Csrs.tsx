@@ -8,6 +8,7 @@ import {
 	hex32,
 	type StepTrace,
 } from "@bennser/core";
+import { LuListPlus } from "react-icons/lu";
 import { twMerge } from "tailwind-merge";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import PanelBase from "@/components/PanelBase";
@@ -62,11 +63,18 @@ export default function ({ csr, trace }: Props) {
 			<ButtonSecondary
 				size="small"
 				aria-pressed={all}
+				icon
 				onClick={() => setAll(!all)}
-				title="Show every CSR in Bennett's csrlist, not just its CSR bank"
+				title={
+					all
+						? "Showing every CSR in Bennett's csrlist. Click for just its CSR bank."
+						: "Show every CSR in Bennett's csrlist, not just its CSR bank"
+				}
+				aria-label="Show all CSRs"
 			>
-				All
+				<LuListPlus size={16} />
 			</ButtonSecondary>
+			<div className="w-[1px] h-[1.25rem] self-center mx-[.15rem] bg-neutral-200 dark:bg-neutral-800" />
 			{FORMATS.map((f) => (
 				<ButtonSecondary
 					key={f.id}

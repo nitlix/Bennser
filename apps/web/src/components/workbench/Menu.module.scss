@@ -23,6 +23,17 @@ $max: 24;
 		--menu-from: 1;
 	}
 
+	// Submenus slide in sideways, away from the menu they came from.
+	&[data-side="right"],
+	&[data-side="left"] {
+		--menu-from: 0;
+		--menu-x: -1;
+	}
+
+	&[data-side="left"] {
+		--menu-x: 1;
+	}
+
 	> * {
 		animation: item-in 180ms ease-out both;
 	}
@@ -48,13 +59,19 @@ $max: 24;
 @keyframes panel-in {
 	from {
 		opacity: 0;
-		transform: translateY(calc(0.25rem * var(--menu-from)));
+		transform: translate(
+			calc(0.25rem * var(--menu-x, 0)),
+			calc(0.25rem * var(--menu-from))
+		);
 	}
 }
 
 @keyframes item-in {
 	from {
 		opacity: 0;
-		transform: translateY(calc(0.2rem * var(--menu-from)));
+		transform: translate(
+			calc(0.2rem * var(--menu-x, 0)),
+			calc(0.2rem * var(--menu-from))
+		);
 	}
 }

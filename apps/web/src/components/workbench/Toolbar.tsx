@@ -4,7 +4,6 @@ import {
 	LuCheck,
 	LuChevronLeft,
 	LuChevronRight,
-	LuFileCode,
 	LuLayoutPanelLeft,
 	LuPause,
 	LuPlay,
@@ -19,7 +18,6 @@ import GitHubButton from "@/components/GitHubButton";
 import InstallButton from "@/components/InstallButton";
 import PillBase from "@/components/PillBase";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
-import { EXAMPLES } from "./examples";
 import Menu, { MenuItem } from "./Menu";
 import type { LayoutApi } from "./useLayout";
 import { PANELS } from "./useLayout";
@@ -71,13 +69,12 @@ function status(api: MachineApi): { text: string; tone: string } {
 type Props = {
 	api: MachineApi;
 	layout: LayoutApi;
-	onExample: (id: string) => void;
 };
 
 /** "1 instruction" / "10 instructions". */
 const instructions = (n: number) => `${n} instruction${n === 1 ? "" : "s"}`;
 
-export default function ({ api, layout, onExample }: Props) {
+export default function ({ api, layout }: Props) {
 	const { text, tone } = status(api);
 	const multi = api.stepSize > 1;
 	const live = api.loaded && !api.stale;
@@ -86,22 +83,6 @@ export default function ({ api, layout, onExample }: Props) {
 	return (
 		<div className="flex flex-row flex-wrap items-center gap-[.6rem] w-full px-[.75rem] pt-[.375rem] pb-[.25rem]">
 			<Logo className="mr-[.75rem]" />
-
-			<Menu label={<LuFileCode size={16} />} title="Load an example">
-				{(close) =>
-					EXAMPLES.map((ex) => (
-						<MenuItem
-							key={ex.id}
-							onClick={() => {
-								onExample(ex.id);
-								close();
-							}}
-						>
-							{ex.title}
-						</MenuItem>
-					))
-				}
-			</Menu>
 
 			<div className="w-[1px] h-[1.75rem] bg-neutral-200 dark:bg-neutral-800 mx-[.25rem]" />
 
@@ -279,7 +260,7 @@ export default function ({ api, layout, onExample }: Props) {
 							>
 								Reset layout
 							</MenuItem>
-							<p className="px-[.75rem] py-[.4rem] text-[.8rem] leading-relaxed text-neutral-500">
+							<p className="w-0 min-w-full px-[.75rem] py-[.4rem] text-[.8rem] leading-relaxed text-neutral-500">
 								Drag a panel by its title to move it, or drag
 								the gaps between panels to resize.
 							</p>

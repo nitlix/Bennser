@@ -77,8 +77,8 @@ export default function () {
 						))}
 					</div>
 
-					<div className="flex flex-row items-center gap-[.5rem] pl-[.85rem] pr-[.35rem] py-[.35rem] min-w-0 rounded-[.7rem] bg-neutral-950 dark:bg-neutral-900 text-neutral-100 font-mono text-[.8rem]">
-						<span className="text-amber-400 select-none">
+					<div className="flex flex-row items-center gap-[.5rem] pl-[.85rem] pr-[.35rem] py-[.35rem] min-w-0 rounded-[.7rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100 font-mono text-[.8rem]">
+						<span className="text-amber-600 dark:text-amber-400 select-none">
 							{current.prompt}
 						</span>
 						<code className="flex-1 min-w-0 overflow-x-auto whitespace-nowrap py-[.4rem]">
@@ -89,21 +89,22 @@ export default function () {
 							onClick={copy}
 							aria-label="Copy install command"
 							title={copied ? "Copied" : "Copy"}
-							className="grid place-items-center shrink-0 size-[2.25rem] rounded-[.5rem] hover:bg-neutral-800 dark:hover:bg-neutral-700"
+							className="grid place-items-center shrink-0 size-[2.25rem] rounded-[.5rem] hover:bg-neutral-200 dark:hover:bg-neutral-800"
 						>
 							{copied ? (
-								<LuCheck size={16} className="text-amber-400" />
+								<LuCheck
+									size={16}
+									className="text-amber-600 dark:text-amber-400"
+								/>
 							) : (
 								<LuCopy size={16} />
 							)}
 						</button>
 					</div>
 
-					<p className="text-[.8rem] leading-relaxed text-neutral-500">
-						Then:{" "}
-						<code className="font-mono">bennser run prog.s</code>.
-						Already have Node? Use{" "}
-						<code className="font-mono">npx bennser</code> (
+					<p className="text-[.8rem] leading-[1.9] text-neutral-500">
+						Then: <Cmd>bennser run prog.s</Cmd>. Already have Node?
+						Use <Cmd>npx bennser</Cmd> (
 						<a
 							href={NPM_URL}
 							target="_blank"
@@ -117,5 +118,14 @@ export default function () {
 				</>
 			)}
 		</Menu>
+	);
+}
+
+/** Inline command in the help text: a small grey pill. */
+function Cmd({ children }: { children: React.ReactNode }) {
+	return (
+		<code className="px-[.4rem] py-[.1rem] rounded-[.4rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 font-mono text-neutral-700 dark:text-neutral-300 whitespace-nowrap">
+			{children}
+		</code>
 	);
 }

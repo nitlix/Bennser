@@ -1,8 +1,16 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useId,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { createPortal } from "react-dom";
-import { LuChevronDown } from "react-icons/lu";
+import { LuChevronDown, LuChevronRight } from "react-icons/lu";
 import { twMerge } from "tailwind-merge";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import s from "./Menu.module.scss";
@@ -29,6 +37,19 @@ function rem() {
 	);
 }
 
+/** Shared by top-level panels and submenus. */
+const PANEL =
+	"grid min-w-[14rem] p-[.35rem] rounded-[1rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 border-b-[3px]";
+
+/** What a SubMenu needs from the menu it sits in. */
+type MenuContextValue = {
+	panel: React.RefObject<HTMLDivElement | null>;
+	sub: string | null;
+	setSub: (id: string | null) => void;
+	close: () => void;
+};
+const MenuContext = createContext<MenuContextValue | null>(null);
+
 const FOCUSABLE =
 	'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -49,6 +70,7 @@ export default function ({
 	children,
 }: Props) {
 	const [open, setOpen] = useState(false);
+	const [sub, setSub] = useState<string | null>(null);
 	const root = useRef<HTMLDivElement>(null);
 	const panel = useRef<HTMLDivElement>(null);
 
@@ -102,12 +124,18 @@ export default function ({
 	}, [open, align]);
 
 	useEffect(() => {
+		if (!open) setSub(null);
+	}, [open]);
+
+	useEffect(() => {
 		if (!open) return;
 		// The panel lives in a portal, so "inside" means the trigger wrapper or the panel.
 		const onDown = (e: PointerEvent) => {
 			const target = e.target as Node;
 			if (root.current?.contains(target)) return;
 			if (panel.current?.contains(target)) return;
+			// Submenus are portalled too.
+			if ((target as Element).closest?.("[data-menu-sub]")) return;
 			setOpen(false);
 		};
 		const onKey = (e: KeyboardEvent) => {
@@ -173,13 +201,18 @@ export default function ({
 						role={panelRole}
 						data-lenis-prevent
 						onKeyDown={onPanelKey}
-						className={twMerge(
-							s.panel,
-							"grid min-w-[14rem] p-[.35rem] rounded-[1rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 border-b-[3px]",
-							panelClassName,
-						)}
+						className={twMerge(s.panel, PANEL, panelClassName)}
 					>
-						{children(() => setOpen(false))}
+						<MenuContext
+							value={{
+								panel,
+								sub,
+								setSub,
+								close: () => setOpen(false),
+							}}
+						>
+							{children(() => setOpen(false))}
+						</MenuContext>
 					</div>,
 					document.body,
 				)}
@@ -204,5 +237,146 @@ export function MenuItem({
 		>
 			{children}
 		</button>
+	);
+}
+
+/**
+ * A menu item that opens a second panel beside the menu ("Load ›"). The panel is portalled
+ * like the menu itself: it opens to the right of the menu, flips left when it doesn't fit,
+ * lines its first item up with this one and scrolls when taller than the viewport.
+ * One submenu per menu is open at a time. ArrowRight opens it from the keyboard;
+ * ArrowLeft or Escape closes it back onto this item.
+ */
+export function SubMenu({
+	label,
+	panelClassName,
+	children,
+}: {
+	label: React.ReactNode;
+	panelClassName?: string;
+	children: (close: () => void) => React.ReactNode;
+}) {
+	const menu = useContext(MenuContext);
+	const id = useId();
+	const item = useRef<HTMLButtonElement>(null);
+	const panel = useRef<HTMLDivElement>(null);
+	const viaKeyboard = useRef(false);
+	const open = menu?.sub === id;
+
+	useLayoutEffect(() => {
+		if (!open) return;
+
+		const place = () => {
+			const el = panel.current;
+			const parent = menu?.panel.current;
+			const anchor = item.current;
+			if (!el || !parent || !anchor) return;
+
+			const unit = rem();
+			const gap = 0.35 * unit;
+			const gutter = 0.5 * unit;
+			const p = parent.getBoundingClientRect();
+			const a = anchor.getBoundingClientRect();
+			const vw = document.documentElement.clientWidth;
+			const vh = window.innerHeight;
+
+			el.style.maxHeight = "";
+			const width = el.offsetWidth;
+			const room = vh - 2 * gutter;
+			const height = Math.min(el.offsetHeight, room);
+			el.style.maxHeight = el.offsetHeight > room ? `${room}px` : "";
+
+			const right = p.right + gap + width <= vw - gutter;
+			const left = right
+				? p.right + gap
+				: Math.max(gutter, p.left - gap - width);
+			el.dataset.side = right ? "right" : "left";
+			el.style.left = `${left}px`;
+
+			// Line the first item up with this one (panel padding + border above it).
+			const ideal = a.top - 0.35 * unit - 1;
+			const top = Math.max(gutter, Math.min(ideal, vh - gutter - height));
+			el.style.top = `${top}px`;
+		};
+
+		place();
+		window.addEventListener("resize", place);
+		window.addEventListener("scroll", place, true);
+		return () => {
+			window.removeEventListener("resize", place);
+			window.removeEventListener("scroll", place, true);
+		};
+	}, [open, menu]);
+
+	useEffect(() => {
+		if (!open || !viaKeyboard.current) return;
+		panel.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+	}, [open]);
+
+	if (!menu) return null;
+
+	const show = (keyboard: boolean) => {
+		viaKeyboard.current = keyboard;
+		menu.setSub(id);
+	};
+	const back = () => {
+		menu.setSub(null);
+		item.current?.focus();
+	};
+
+	const onPanelKey = (e: React.KeyboardEvent) => {
+		if (e.key === "Escape" || e.key === "ArrowLeft") {
+			e.stopPropagation();
+			back();
+			return;
+		}
+		if (e.key !== "Tab") return;
+		// Keep the parent menu's Tab bridging out of this panel.
+		e.stopPropagation();
+		const items = Array.from(
+			panel.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
+		);
+		const edge = e.shiftKey ? items[0] : items[items.length - 1];
+		if (document.activeElement !== edge) return;
+		e.preventDefault();
+		back();
+	};
+
+	return (
+		<>
+			<MenuItem
+				ref={item}
+				aria-haspopup="menu"
+				aria-expanded={open}
+				onClick={(e) =>
+					open ? menu.setSub(null) : show(e.detail === 0)
+				}
+				onKeyDown={(e) => {
+					if (e.key !== "ArrowRight") return;
+					e.preventDefault();
+					show(true);
+				}}
+			>
+				{label}
+				<LuChevronRight
+					size={16}
+					className="shrink-0 ml-auto text-neutral-400"
+				/>
+			</MenuItem>
+			{open &&
+				createPortal(
+					<div
+						ref={panel}
+						role="menu"
+						data-menu-sub
+						data-lenis-prevent
+						onKeyDown={onPanelKey}
+						className={twMerge(s.panel, PANEL, panelClassName)}
+					>
+						{children(menu.close)}
+					</div>,
+					document.body,
+				)}
+		</>
 	);
 }

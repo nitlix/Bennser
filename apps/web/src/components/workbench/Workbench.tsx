@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import PanelBase from "@/components/PanelBase";
 import Console from "./Console";
@@ -9,11 +9,13 @@ import Datapath from "./Datapath";
 import Dock from "./Dock";
 import FontSizeSlider, { FONT_SIZES } from "./FontSizeSlider";
 import { EXAMPLES } from "./examples";
+import FileMenu from "./FileMenu";
 import Listing from "./Listing";
 import MemoryView from "./MemoryView";
 import Registers from "./Registers";
 import SourceEditor from "./SourceEditor";
 import Toolbar from "./Toolbar";
+import { useFiles } from "./useFiles";
 import { type PanelId, useLayout } from "./useLayout";
 import { useMachine } from "./useMachine";
 import { useStored } from "./useStored";
@@ -30,6 +32,7 @@ const isTyping = (el: EventTarget | null) =>
 export default function () {
 	const api = useMachine(EXAMPLES[0]!.source);
 	const layout = useLayout();
+	const files = useFiles(api.source);
 	const { machine, lastTrace } = api;
 	const kmd = machine.kmd;
 	const [fontSize, setFontSize] = useStored(
@@ -59,9 +62,38 @@ export default function () {
 		[api.breakpoints],
 	);
 
-	// ⌘↵ run anywhere; outside text fields: → step, ← back, space run/pause.
+	/** Bumped on each successful save so the file pill flashes "Saved". */
+	const [saveCount, setSaveCount] = useState(0);
+	function save() {
+		const error = files.save();
+		if (error) return alert(error);
+		setSaveCount((n) => n + 1);
+	}
+	// The key handler is bound once per run state; always save the latest source.
+	const saveRef = useRef(save);
+	saveRef.current = save;
+
+	/** Open a program (save, import, example), checking before dropping unsaved work. */
+	function open(name: string, text: string, input?: string) {
+		const discard =
+			!files.dirty ||
+			confirm(
+				`${files.name} has unsaved changes. Open ${name} anyway and lose them?`,
+			);
+		if (!discard) return;
+		files.opened(name, text);
+		api.replaceSource(text);
+		api.load(text, input);
+	}
+
+	// ⌘S / Ctrl+S save and ⌘↵ run anywhere; outside text fields: → step, ← back, space run/pause.
 	useEffect(() => {
 		function onKey(e: KeyboardEvent) {
+			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+				e.preventDefault();
+				saveRef.current();
+				return;
+			}
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
 				e.preventDefault();
 				api.running === "fast" ? api.pause() : api.run();
@@ -82,13 +114,6 @@ export default function () {
 		return () => window.removeEventListener("keydown", onKey);
 	}, [api.running, api.step, api.back, api.run, api.pause]);
 
-	function loadExample(id: string) {
-		const example = EXAMPLES.find((e) => e.id === id);
-		if (!example) return;
-		api.replaceSource(example.source);
-		api.load(example.source, example.input);
-	}
-
 	const home = useMemo(
 		() => kmd?.lines.find((l) => l.data && l.bytes.length)?.address ?? 0,
 		[kmd],
@@ -103,11 +128,17 @@ export default function () {
 		source: () => (
 			<PanelBase
 				title="Source"
+				badge={
+					<FileMenu
+						files={files}
+						source={api.source}
+						onSave={save}
+						onOpen={open}
+						saveCount={saveCount}
+					/>
+				}
 				actions={
 					<>
-						<span className="hidden xl:inline text-[.8rem] text-neutral-500">
-							Click line number for breakpoint
-						</span>
 						{api.breakpoints.size > 0 && (
 							<ButtonSecondary
 								size="small"
@@ -200,7 +231,7 @@ export default function () {
 
 	return (
 		<div className="flex flex-col gap-[.75rem] w-full h-dvh p-[.75rem] bg-neutral-50 dark:bg-neutral-950 overflow-auto lg:overflow-hidden">
-			<Toolbar api={api} layout={layout} onExample={loadExample} />
+			<Toolbar api={api} layout={layout} />
 			<Dock layout={layout} render={(id) => panels[id]()} />
 		</div>
 	);

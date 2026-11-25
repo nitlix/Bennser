@@ -25,12 +25,12 @@ export const DEFAULT_LAYOUT: Layout = {
 	version: 1,
 	columns: [
 		{ size: 1, cells: [{ id: "source", size: 1 }] },
-		// Datapath and CSRs start hidden; turn them on from the View menu.
-		{ size: 1.2, cells: [{ id: "console", size: 1 }] },
+		// Datapath, machine code and CSRs start hidden; turn them on from the View menu.
 		{
-			size: 0.9,
+			size: 1,
 			cells: [
 				{ id: "registers", size: 1.15 },
+				{ id: "console", size: 0.8 },
 				{ id: "memory", size: 1 },
 			],
 		},

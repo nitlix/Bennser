@@ -2,6 +2,7 @@
 
 import { ABI_NAMES, hex32, type StepTrace } from "@bennser/core";
 import { useState } from "react";
+import { LuEraser } from "react-icons/lu";
 import { twMerge } from "tailwind-merge";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import PanelBase from "@/components/PanelBase";
@@ -27,7 +28,7 @@ const show = (value: number, format: Format) => {
 
 /** Grey, borderless name tag for pc and the register ABI names. */
 export const NamePill = ({ children }: { children: React.ReactNode }) => (
-	<PillBase className="h-[1.3rem] px-[.4rem] rounded-[.35rem] border-0 bg-neutral-500 dark:bg-neutral-800 text-white dark:text-white font-sans text-[.8rem] font-[500]">
+	<PillBase className="h-[1.3rem] px-[.4rem] rounded-[.35rem] border-0 bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-white font-sans text-[.8rem] font-[500]">
 		{children}
 	</PillBase>
 );
@@ -89,15 +90,18 @@ export default function ({ registers, pc, trace, onEdit, onZero }: Props) {
 					</span>
 				</ButtonSecondary>
 			))}
+			<div className="w-[1px] h-[1.25rem] self-center mx-[.15rem] bg-neutral-200 dark:bg-neutral-800" />
 			<ButtonSecondary
 				size="small"
+				icon
 				onClick={() => {
 					setEditing(null);
 					onZero();
 				}}
-				title="Set every register (and PC) to 0"
+				title="Zero registers: set x1–x31 and PC to 0"
+				aria-label="Zero registers"
 			>
-				Zero
+				<LuEraser size={16} />
 			</ButtonSecondary>
 		</div>
 	);

@@ -1,0 +1,77 @@
+@reference "../../app/globals.css";
+
+/* Filename pill beside the Source title: an inline-editable name plus an unsaved dot. */
+.pill {
+	@apply flex flex-row items-center gap-[.35rem] h-[1.85rem] pl-[.6rem] pr-[.5rem] rounded-[.55rem] border-[1px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900;
+	transition: border-color 0.15s ease;
+
+	&:hover {
+		@apply border-neutral-300 dark:border-neutral-700;
+	}
+
+	&:focus-within {
+		@apply border-neutral-400 dark:border-neutral-500;
+	}
+}
+
+.name {
+	@apply min-w-[3rem] max-w-[11rem] bg-transparent outline-none font-mono text-[.8rem] font-[500] text-neutral-700 dark:text-neutral-300;
+	/* Grow with the name where supported; the min/max keep it sane elsewhere. */
+	field-sizing: content;
+
+	&:focus {
+		@apply text-black dark:text-white;
+	}
+}
+
+.dirty {
+	@apply shrink-0 size-[.45rem] rounded-full bg-amber-500;
+}
+
+/* A saved file in the Load list: the open button, then a delete button. */
+.entry {
+	@apply flex flex-row items-center gap-[.15rem];
+}
+
+.remove {
+	@apply grid place-items-center shrink-0 size-[2rem] rounded-[.55rem] text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-rose-500;
+}
+
+.empty {
+	@apply px-[.75rem] py-[.6rem] text-[.8rem] text-neutral-500;
+}
+
+/* Brief confirmation after a save: fades in beside the menu button, then out. */
+.saved {
+	@apply absolute left-full ml-[.4rem] flex flex-row items-center gap-[.3rem] h-[1.6rem] px-[.5rem] rounded-[.5rem] border-[1px] border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-400 text-[.8rem] font-[600] whitespace-nowrap pointer-events-none;
+	animation: saved 1.4s ease both;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation-name: saved-still;
+	}
+}
+
+@keyframes saved {
+	0% {
+		opacity: 0;
+		transform: translateX(-0.25rem);
+	}
+	12%,
+	70% {
+		opacity: 1;
+		transform: none;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes saved-still {
+	0%,
+	70% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}

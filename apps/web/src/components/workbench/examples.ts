@@ -7,18 +7,26 @@ import sumArray from "../../../../../tests/programs/sum_array.s?raw";
 export type Example = {
 	id: string;
 	title: string;
+	/** Name it opens as in the editor (the test fixture's file name). */
+	file: string;
 	source: string;
 	input?: string;
 };
 
 /** Same files the differential tests run against upstream Bennett. */
 export const EXAMPLES: Example[] = [
-	{ id: "hello", title: "Hello world", source: hello },
-	{ id: "sum", title: "Sum an array", source: sumArray },
-	{ id: "fib", title: "Fibonacci", source: fib },
-	{ id: "fact", title: "Recursive factorial", source: factorial },
+	{ id: "hello", file: "hello.s", title: "Hello world", source: hello },
+	{ id: "sum", file: "sum_array.s", title: "Sum an array", source: sumArray },
+	{ id: "fib", file: "fib.s", title: "Fibonacci", source: fib },
+	{
+		id: "fact",
+		file: "factorial.s",
+		title: "Recursive factorial",
+		source: factorial,
+	},
 	{
 		id: "echo",
+		file: "echo_upper.s",
 		title: "Echo uppercase (input)",
 		source: echoUpper,
 		input: "hello bennett\n",
