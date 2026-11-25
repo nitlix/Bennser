@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 
-/** A label, not a control: the button plate without its heavier bottom edge. */
+/** A label, not a control: looks like the button plate but does nothing. */
 export default function ({
 	className,
 	children,

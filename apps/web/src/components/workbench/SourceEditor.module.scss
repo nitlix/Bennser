@@ -1,8 +1,15 @@
 @reference "../../app/globals.css";
 
-/* Line height and top padding are shared by the gutter, the highlight bands and the textarea. */
+/*
+ * Line height and top padding are shared by the gutter, the highlight bands and the textarea.
+ * --font is set inline from the size slider; the line height follows it.
+ */
 .editor {
-	@apply relative flex flex-row flex-1 min-h-0 font-mono text-[.875rem] leading-[1.5rem];
+	--line: calc(var(--font, 0.875rem) * 1.715);
+
+	@apply relative flex flex-row flex-1 min-h-0 font-mono;
+	font-size: var(--font, 0.875rem);
+	line-height: var(--line);
 }
 
 .gutter {
@@ -10,7 +17,7 @@
 }
 
 .line {
-	@apply relative flex flex-row items-center justify-end gap-[.4rem] shrink-0 h-[1.5rem] pr-[.65rem] text-neutral-400 dark:text-neutral-600 font-mono text-[.8rem];
+	@apply relative flex flex-row items-center justify-end gap-[.4rem] shrink-0 h-[var(--line)] pr-[.65rem] text-neutral-400 dark:text-neutral-600 font-mono text-[.8rem];
 
 	&:hover {
 		@apply text-neutral-600 dark:text-neutral-300;
@@ -29,7 +36,7 @@
 	}
 
 	&.breakpoint .dot {
-		@apply bg-rose-500 shadow-[0_.1rem_0_var(--color-rose-700)];
+		@apply bg-rose-500;
 	}
 }
 
@@ -46,7 +53,7 @@
 }
 
 %band {
-	@apply absolute inset-x-0 h-[1.5rem];
+	@apply absolute inset-x-0 h-[var(--line)];
 }
 
 .pcBand {

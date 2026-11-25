@@ -5,6 +5,7 @@ import PanelBase from "@/components/PanelBase";
 import Console from "./Console";
 import Datapath from "./Datapath";
 import Dock from "./Dock";
+import FontSizeSlider, { FONT_SIZES } from "./FontSizeSlider";
 import { EXAMPLES } from "./examples";
 import Listing from "./Listing";
 import MemoryView from "./MemoryView";
@@ -13,6 +14,7 @@ import SourceEditor from "./SourceEditor";
 import Toolbar from "./Toolbar";
 import { type PanelId, useLayout } from "./useLayout";
 import { useMachine } from "./useMachine";
+import { useStored } from "./useStored";
 
 const SOURCE_KEY = "bennser:source";
 const BREAKPOINTS_KEY = "bennser:breakpoints";
@@ -28,6 +30,12 @@ export default function () {
 	const layout = useLayout();
 	const { machine, lastTrace } = api;
 	const kmd = machine.kmd;
+	const [fontSize, setFontSize] = useStored(
+		"bennser:fontSize",
+		0.875,
+		(v) =>
+			typeof v === "number" && v >= FONT_SIZES.min && v <= FONT_SIZES.max,
+	);
 
 	// Restore / persist the user's program and breakpoints.
 	useEffect(() => {
@@ -94,9 +102,15 @@ export default function () {
 			<PanelBase
 				title="Source"
 				actions={
-					<span className="hidden xl:inline text-[.8rem] text-neutral-500">
-						Click a line number for a breakpoint
-					</span>
+					<>
+						<span className="hidden xl:inline text-[.8rem] text-neutral-500">
+							Click line number for breakpoint
+						</span>
+						<FontSizeSlider
+							value={fontSize}
+							onChange={setFontSize}
+						/>
+					</>
 				}
 			>
 				<SourceEditor
@@ -107,6 +121,7 @@ export default function () {
 					breakpoints={api.breakpoints}
 					onToggleBreakpoint={api.toggleBreakpoint}
 					pcLine={api.pcLine}
+					fontSize={fontSize}
 				/>
 			</PanelBase>
 		),

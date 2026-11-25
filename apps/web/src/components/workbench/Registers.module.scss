@@ -1,0 +1,58 @@
+@reference "../../app/globals.css";
+
+/*
+ * The register table fills the panel body: cells on a hairline-coloured backing, so the 1px
+ * gaps read as borders.
+ * Highlights are opaque mixes, because a translucent fill would show the backing through.
+ */
+.table {
+	--line: var(--color-neutral-200);
+	--cell: var(--color-white);
+	--read: color-mix(in oklab, var(--color-sky-500) 15%, var(--color-white));
+	--written: color-mix(
+		in oklab,
+		var(--color-amber-500) 20%,
+		var(--color-white)
+	);
+
+	@apply flex flex-col shrink-0 gap-[1px] font-mono text-[.875rem];
+	background: var(--line);
+
+	:global([data-theme="dark"]) & {
+		--line: var(--color-neutral-800);
+		--cell: var(--color-black);
+		--read: color-mix(
+			in oklab,
+			var(--color-sky-500) 15%,
+			var(--color-black)
+		);
+		--written: color-mix(
+			in oklab,
+			var(--color-amber-500) 20%,
+			var(--color-black)
+		);
+	}
+}
+
+.grid {
+	@apply grid grid-cols-2 grid-rows-[repeat(16,2.1rem)] grid-flow-col gap-[1px];
+}
+
+.cell {
+	@apply flex flex-row justify-between items-center gap-[.5rem] min-w-0 h-[2.1rem] px-[.85rem] transition-colors;
+	background: var(--cell);
+
+	&.read {
+		background: var(--read);
+	}
+
+	&.written {
+		background: var(--written);
+	}
+}
+
+/* The PC row stands apart from the grid and stays put while the registers scroll. */
+.pc {
+	@apply sticky top-0 z-[1] h-auto py-[.75rem];
+	box-shadow: 0 1px 0 var(--line);
+}

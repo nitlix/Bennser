@@ -120,34 +120,37 @@ export default function ({ api, layout, onExample }: Props) {
 						: "Run"}
 			</ButtonPrimary>
 
-			<ButtonSecondary
-				icon
-				onClick={api.back}
-				disabled={!live || !api.machine.canUndo}
-				title="Step back (←)"
-				aria-label="Step back"
-			>
-				<LuChevronLeft size={16} />
-			</ButtonSecondary>
-			<ButtonSecondary
-				onClick={api.step}
-				disabled={api.busy || (live && api.finished)}
-				title="Step one instruction (→)"
-			>
-				Step
-				<LuChevronRight size={16} />
-			</ButtonSecondary>
-			<ButtonSecondary
-				icon
-				onClick={api.restart}
-				disabled={!api.loaded}
-				title="Restart from the top"
-				aria-label="Restart"
-			>
-				<LuRotateCcw size={16} />
-			</ButtonSecondary>
+			{/* Related controls sit at half the toolbar gap. */}
+			<div className="flex flex-row items-center gap-[.3rem]">
+				<ButtonSecondary
+					icon
+					onClick={api.back}
+					disabled={!live || !api.machine.canUndo}
+					title="Step back (←)"
+					aria-label="Step back"
+				>
+					<LuChevronLeft size={16} />
+				</ButtonSecondary>
+				<ButtonSecondary
+					onClick={api.step}
+					disabled={api.busy || (live && api.finished)}
+					title="Step one instruction (→)"
+				>
+					Step
+					<LuChevronRight size={16} />
+				</ButtonSecondary>
+				<ButtonSecondary
+					icon
+					onClick={api.restart}
+					disabled={!api.loaded}
+					title="Restart from the top"
+					aria-label="Restart"
+				>
+					<LuRotateCcw size={16} />
+				</ButtonSecondary>
+			</div>
 
-			<div className="flex flex-row items-center gap-[.35rem]">
+			<div className="flex flex-row items-center gap-[.3rem]">
 				<ButtonSecondary
 					onClick={api.animate}
 					aria-pressed={api.running === "animate"}
@@ -190,14 +193,14 @@ export default function ({ api, layout, onExample }: Props) {
 			</div>
 
 			<div className="flex flex-row items-center gap-[.6rem] ml-auto">
-				<PillBase className="h-[2.5rem]">
+				<PillBase className="h-[2.25rem]">
 					<span
 						className={twMerge("size-[.5rem] rounded-full", tone)}
 					/>
 					{text}
 				</PillBase>
 				{live && count > 0n && (
-					<PillBase className="h-[2.5rem] tabular-nums text-neutral-500 dark:text-neutral-400">
+					<PillBase className="h-[2.25rem] tabular-nums text-neutral-500 dark:text-neutral-400">
 						{count.toLocaleString()} steps
 					</PillBase>
 				)}

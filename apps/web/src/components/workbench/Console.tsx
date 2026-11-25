@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LuCornerDownLeft } from "react-icons/lu";
+import { LuChevronRight, LuCornerDownLeft } from "react-icons/lu";
+import { twMerge } from "tailwind-merge";
 import PanelBase from "@/components/PanelBase";
 
 type Props = {
@@ -69,17 +70,17 @@ export default function ({
 			{footer}
 			<form
 				onSubmit={submit}
-				className="flex flex-row items-center gap-[.5rem] px-[.85rem] h-[2.75rem] shrink-0 border-t-[1px] border-neutral-200 dark:border-neutral-800"
+				className="flex flex-row items-center gap-[.6rem] px-[1rem] h-[3rem] shrink-0 border-t-[1px] border-neutral-200 dark:border-neutral-800"
 			>
-				<span
-					className={
+				<LuChevronRight
+					size={16}
+					className={twMerge(
+						"shrink-0",
 						waiting
 							? "text-amber-500 animate-pulse"
-							: "text-neutral-400"
-					}
-				>
-					›
-				</span>
+							: "text-neutral-400",
+					)}
+				/>
 				<input
 					ref={field}
 					value={line}
@@ -90,12 +91,12 @@ export default function ({
 							? "The program is waiting for input…"
 							: "Type input for the program, Enter to send"
 					}
-					className="flex-1 min-w-0 bg-transparent font-mono text-[1rem] md:text-[.875rem] text-black dark:text-white"
+					className="flex-1 min-w-0 h-full bg-transparent font-mono text-[1rem] md:text-[.875rem] leading-none text-black dark:text-white shadow-none outline-none focus:outline-none"
 				/>
 				<button
 					type="submit"
 					disabled={!enabled}
-					className="text-neutral-500 hover:text-black dark:hover:text-white"
+					className="grid place-items-center shrink-0 size-[1.75rem] rounded-[.5rem] text-neutral-500 hover:text-black dark:hover:text-white"
 					aria-label="Send input"
 				>
 					<LuCornerDownLeft size={16} />

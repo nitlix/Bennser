@@ -1,10 +1,12 @@
 "use client";
 
 import { ABI_NAMES, hex32, type StepTrace } from "@bennser/core";
-import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import PanelBase from "@/components/PanelBase";
+import PillBase from "@/components/PillBase";
+import s from "./Registers.module.scss";
+import { useStored } from "./useStored";
 
 type Format = "hex" | "dec" | "chr";
 
@@ -21,10 +23,21 @@ const show = (value: number, format: Format) => {
 	return b >= 32 && b < 127 ? `'${String.fromCharCode(b)}'` : hex32(value);
 };
 
+/** Grey, borderless name tag for pc and the register ABI names. */
+const NamePill = ({ children }: { children: React.ReactNode }) => (
+	<PillBase className="h-[1.3rem] px-[.4rem] rounded-[.35rem] border-0 bg-neutral-500 dark:bg-neutral-800 text-white dark:text-white font-sans text-[.8rem] font-[500]">
+		{children}
+	</PillBase>
+);
+
 type Props = { registers: Uint32Array; pc: number; trace: StepTrace | null };
 
 export default function ({ registers, pc, trace }: Props) {
-	const [format, setFormat] = useState<Format>("hex");
+	const [format, setFormat] = useStored<Format>(
+		"bennser:registerFormat",
+		"hex",
+		(v) => FORMATS.some((f) => f.id === v),
+	);
 	const written = new Set(trace?.regWrites.map((w) => w.reg));
 	const read = new Set(trace?.regReads.map((r) => r.reg));
 
@@ -54,44 +67,46 @@ export default function ({ registers, pc, trace }: Props) {
 			actions={actions}
 			className="@container/registers"
 		>
-			{/* The gap puts the divider exactly midway between pc and the register grid. */}
-			<div
-				className="flex flex-col gap-[.65rem] px-[.85rem] py-[.65rem] font-mono text-[.875rem] overflow-auto"
-				data-lenis-prevent
-			>
-				<div className="flex flex-row justify-between items-center h-[1.6rem] shrink-0">
-					<span className="text-neutral-500">pc</span>
-					<span className="text-amber-500">{hex32(pc)}</span>
-				</div>
-				<hr className="shrink-0 h-[1px] border-0 bg-neutral-200 dark:bg-neutral-800" />
-				<div className="grid grid-cols-2 grid-rows-[repeat(16,1.6rem)] grid-flow-col gap-x-[1rem]">
-					{Array.from(registers, (value, i) => (
-						<div
-							key={ABI_NAMES[i]}
-							className={twMerge(
-								"flex flex-row justify-between items-center h-[1.6rem] px-[.35rem] -mx-[.35rem] rounded-[.3rem] transition-colors",
-								read.has(i) && "bg-sky-500/15",
-								written.has(i) && "bg-amber-500/20",
-							)}
-							title={`x${i} = ${value | 0} (0x${hex32(value)})`}
-						>
-							<span className="text-neutral-500">
-								<span className="text-black dark:text-white">
-									{ABI_NAMES[i]}
-								</span>
-								<span className="text-[.7rem]"> x{i}</span>
-							</span>
-							<span
+			<div className="flex-1 min-h-0 overflow-auto" data-lenis-prevent>
+				<div className={s.table}>
+					<div className={twMerge(s.cell, s.pc)}>
+						<span className="flex flex-row items-center gap-[.5rem] font-sans text-[.8rem] text-neutral-500">
+							<NamePill>PC</NamePill>
+							Program counter
+						</span>
+						<span className="text-amber-500">
+							{show(pc, format)}
+						</span>
+					</div>
+					<div className={s.grid}>
+						{Array.from(registers, (value, i) => (
+							<div
+								key={ABI_NAMES[i]}
 								className={twMerge(
-									value
-										? "text-black dark:text-white"
-										: "text-neutral-400 dark:text-neutral-600",
+									s.cell,
+									read.has(i) && s.read,
+									written.has(i) && s.written,
 								)}
+								title={`x${i} = ${value | 0} (0x${hex32(value)})`}
 							>
-								{show(value, format)}
-							</span>
-						</div>
-					))}
+								<span className="flex flex-row items-center gap-[.35rem] text-neutral-500">
+									<NamePill>{ABI_NAMES[i]}</NamePill>
+									<span className="text-[.7rem] translate-y-[.04rem]">
+										x{i}
+									</span>
+								</span>
+								<span
+									className={
+										value
+											? "text-black dark:text-white"
+											: "text-neutral-400 dark:text-neutral-600"
+									}
+								>
+									{show(value, format)}
+								</span>
+							</div>
+						))}
+					</div>
 				</div>
 			</div>
 		</PanelBase>

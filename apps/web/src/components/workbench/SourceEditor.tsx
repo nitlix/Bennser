@@ -15,6 +15,8 @@ type Props = {
 	onToggleBreakpoint: (line: number) => void;
 	/** Source line of the next instruction to execute, when paused on up-to-date code. */
 	pcLine: number | null;
+	/** Code font size in rem. */
+	fontSize: number;
 };
 
 export default function ({
@@ -25,6 +27,7 @@ export default function ({
 	breakpoints,
 	onToggleBreakpoint,
 	pcLine,
+	fontSize,
 }: Props) {
 	const area = useRef<HTMLTextAreaElement>(null);
 	const gutter = useRef<HTMLDivElement>(null);
@@ -55,7 +58,7 @@ export default function ({
 		if (visible) return;
 		el.scrollTop = Math.max(0, top - el.clientHeight / 3);
 		syncScroll(el.scrollTop);
-	}, [pcLine]);
+	}, [pcLine, fontSize]);
 
 	function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
 		if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -87,7 +90,10 @@ export default function ({
 
 	return (
 		<>
-			<div className={s.editor}>
+			<div
+				className={s.editor}
+				style={{ "--font": `${fontSize}rem` } as React.CSSProperties}
+			>
 				<div
 					className={s.gutter}
 					ref={gutter}
@@ -124,20 +130,26 @@ export default function ({
 							<div
 								key={`e${line}`}
 								className={s.errorBand}
-								style={{ top: `${(line - 1) * 1.5}rem` }}
+								style={{
+									top: `calc(${line - 1} * var(--line))`,
+								}}
 							/>
 						))}
 						{[...breakpoints].map((line) => (
 							<div
 								key={`b${line}`}
 								className={s.breakpointBand}
-								style={{ top: `${(line - 1) * 1.5}rem` }}
+								style={{
+									top: `calc(${line - 1} * var(--line))`,
+								}}
 							/>
 						))}
 						{pcLine !== null && (
 							<div
 								className={s.pcBand}
-								style={{ top: `${(pcLine - 1) * 1.5}rem` }}
+								style={{
+									top: `calc(${pcLine - 1} * var(--line))`,
+								}}
 							/>
 						)}
 					</div>

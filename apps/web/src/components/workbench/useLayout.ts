@@ -24,13 +24,8 @@ export const DEFAULT_LAYOUT: Layout = {
 	version: 1,
 	columns: [
 		{ size: 1, cells: [{ id: "source", size: 1 }] },
-		{
-			size: 1.45,
-			cells: [
-				{ id: "datapath", size: 1.3 },
-				{ id: "console", size: 1 },
-			],
-		},
+		// Datapath starts hidden; turn it on from the View menu.
+		{ size: 1.2, cells: [{ id: "console", size: 1 }] },
 		{
 			size: 0.9,
 			cells: [

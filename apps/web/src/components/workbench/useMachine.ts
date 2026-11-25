@@ -15,6 +15,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { useStored } from "./useStored";
 
 export const SPEEDS = [
 	{ label: "1/s", name: "Very slow", perSecond: 1 },
@@ -84,7 +85,14 @@ export function useMachine(initialSource: string) {
 		setRunningState(value);
 	}, []);
 	const [reason, setReason] = useState<StopReason | null>(null);
-	const [speedIndex, setSpeedIndex] = useState(2);
+	const [speedIndex, setSpeedIndex] = useStored(
+		"bennser:speed",
+		2,
+		(v) =>
+			Number.isInteger(v) &&
+			(v as number) >= 0 &&
+			(v as number) < SPEEDS.length,
+	);
 	const [breakpoints, setBreakpoints] = useState<Set<number>>(new Set());
 	const [busy, setBusy] = useState(false);
 

@@ -88,7 +88,7 @@ export default function ({
 								className={twMerge(
 									"size-[.6rem] rounded-full",
 									hasBp
-										? "bg-rose-500 shadow-[0_.1rem_0_var(--color-rose-700)]"
+										? "bg-rose-500"
 										: isCode
 											? "group-hover:bg-rose-500/40"
 											: "",

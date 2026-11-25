@@ -1,0 +1,41 @@
+@reference "../../app/globals.css";
+
+/* Colours live in vars: dark: variants can't follow a pseudo-element like ::-webkit-slider-thumb. */
+.slider {
+	--track: var(--color-neutral-200);
+	--thumb: var(--color-neutral-400);
+
+	@apply flex flex-row items-center gap-[.45rem] font-[600] leading-none text-neutral-400 select-none;
+
+	:global([data-theme="dark"]) & {
+		--track: var(--color-neutral-800);
+		--thumb: var(--color-neutral-600);
+		@apply text-neutral-600;
+	}
+
+	& input {
+		@apply w-[4.5rem] h-[1rem] bg-transparent cursor-pointer appearance-none outline-none;
+	}
+
+	& input::-webkit-slider-runnable-track {
+		@apply h-[.2rem] rounded-full;
+		background: var(--track);
+	}
+	& input::-moz-range-track {
+		@apply h-[.2rem] rounded-full;
+		background: var(--track);
+	}
+
+	& input::-webkit-slider-thumb {
+		@apply appearance-none size-[.8rem] mt-[-.3rem] rounded-full border-0;
+		background: var(--thumb);
+	}
+	& input::-moz-range-thumb {
+		@apply size-[.8rem] rounded-full border-0;
+		background: var(--thumb);
+	}
+
+	& input:focus-visible::-webkit-slider-thumb {
+		@apply outline-[2px] outline-offset-[2px] outline-neutral-500;
+	}
+}
