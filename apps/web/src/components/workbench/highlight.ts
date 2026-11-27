@@ -5,8 +5,11 @@ export type TokenKind =
 	| "label"
 	| "mnemonic"
 	| "directive"
+	| "data"
 	| "register"
-	| "literal"
+	| "symbol"
+	| "string"
+	| "number"
 	| "local";
 export type Token = { text: string; kind: TokenKind | null };
 
@@ -22,12 +25,19 @@ const DIRECTIVES = new Set(
 const REGISTER =
 	/^(x([0-9]|[12][0-9]|3[01])|zero|ra|sp|gp|tp|fp|pc|t[0-6]|s([0-9]|1[01])|a[0-7])$/i;
 
+/** Directives that lay down data (coloured apart, as in the VS Code theme Bennser follows). */
+const DATA = new Set(
+	"dcb dcd dcw defb defh defw defs byte double doubleword half halfword word".split(
+		" ",
+	),
+);
+
 /** Operand-level tokens, tried in order at each position. */
 const OPERAND_RULES: [RegExp, TokenKind | "word" | null][] = [
-	[/^"(?:\\.|[^"\\])*"?/, "literal"],
-	[/^'(?:\\.|[^'\\])*'?/, "literal"],
+	[/^"(?:\\.|[^"\\])*"?/, "string"],
+	[/^'(?:\\.|[^'\\])*'?/, "string"],
 	[/^%[a-z]*\d+\w*/i, "local"],
-	[/^(?:0x[0-9a-f_]+|0b[01_]+|&[0-9a-f]+|\d+)\b/i, "literal"],
+	[/^(?:0x[0-9a-f_]+|0b[01_]+|&[0-9a-f]+|\d+)\b/i, "number"],
 	[/^[A-Za-z_.$][\w.$]*/, "word"],
 	[/^\s+/, null],
 	[/^./, null],
@@ -60,7 +70,7 @@ function tokenizeOperands(text: string, out: Token[]) {
 				kind === "word"
 					? REGISTER.test(word)
 						? "register"
-						: null
+						: "symbol"
 					: kind;
 			out.push({ text: word, kind: resolved });
 			rest = rest.slice(word.length);
@@ -89,9 +99,11 @@ export function tokenizeLine(line: string): Token[] {
 		if (op[1]) out.push({ text: op[1], kind: null });
 		out.push({
 			text: op[2],
-			kind: DIRECTIVES.has(op[2].toLowerCase())
-				? "directive"
-				: "mnemonic",
+			kind: DATA.has(op[2].toLowerCase())
+				? "data"
+				: DIRECTIVES.has(op[2].toLowerCase())
+					? "directive"
+					: "mnemonic",
 		});
 		code = code.slice(op[0].length);
 	}

@@ -362,7 +362,7 @@ export default function ({
 								className={twMerge(
 									"flex flex-row items-center gap-[.75rem] px-[.85rem] whitespace-pre",
 									isPc &&
-										"bg-amber-500/20 shadow-[inset_3px_0_0_var(--color-amber-500)]",
+										"bg-black/[.06] dark:bg-white/[.07]",
 								)}
 							>
 								<span

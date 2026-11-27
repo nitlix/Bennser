@@ -1,7 +1,7 @@
 "use client";
 
 import type { AssembleError } from "@bennser/asm/browser";
-import { Fragment, useEffect, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { tokenizeLine } from "./highlight";
 import s from "./SourceEditor.module.scss";
@@ -42,6 +42,34 @@ export default function ({
 	const lineCount = lines.length;
 	const highlighted = useMemo(() => lines.map(tokenizeLine), [lines]);
 	const errorLines = new Set(errors.map((e) => e.line));
+	// The caret's line (VS Code's current-line highlight); null while text is selected.
+	const [caretLine, setCaretLine] = useState<number | null>(null);
+
+	function trackCaret(el: HTMLTextAreaElement) {
+		const { selectionStart: start, selectionEnd: end } = el;
+		if (start !== end) {
+			setCaretLine(null);
+			return;
+		}
+		setCaretLine(el.value.slice(0, start).split("\n").length);
+	}
+
+	// React's onSelect only fires on key-up/mouse-up, so the band lagged a held
+	// arrow key. The native selectionchange fires on every caret move: on the
+	// textarea in newer browsers, on the document in older ones.
+	useEffect(() => {
+		const el = area.current;
+		if (!el) return;
+		const onChange = () => {
+			if (document.activeElement === el) trackCaret(el);
+		};
+		el.addEventListener("selectionchange", onChange);
+		document.addEventListener("selectionchange", onChange);
+		return () => {
+			el.removeEventListener("selectionchange", onChange);
+			document.removeEventListener("selectionchange", onChange);
+		};
+	}, []);
 
 	function syncScroll(top: number, left = area.current?.scrollLeft ?? 0) {
 		if (gutter.current) gutter.current.scrollTop = top;
@@ -121,6 +149,7 @@ export default function ({
 									s.line,
 									breakpoints.has(line) && s.breakpoint,
 									errorLines.has(line) && s.error,
+									caretLine === line && s.active,
 									pcLine === line && s.current,
 								)}
 								aria-label={`Toggle breakpoint on line ${line}`}
@@ -134,6 +163,14 @@ export default function ({
 
 				<div className={s.body}>
 					<div className={s.bands} ref={bands} aria-hidden>
+						{caretLine !== null && (
+							<div
+								className={s.caretBand}
+								style={{
+									top: `calc(${caretLine - 1} * var(--line))`,
+								}}
+							/>
+						)}
 						{[...errorLines].map((line) => (
 							<div
 								key={`e${line}`}
@@ -184,6 +221,8 @@ export default function ({
 						spellCheck={false}
 						onChange={(e) => onChange(e.target.value)}
 						onKeyDown={onKeyDown}
+						onSelect={(e) => trackCaret(e.currentTarget)}
+						onInput={(e) => trackCaret(e.currentTarget)}
 						onMouseDown={drag.onMouseDown}
 						onMouseMove={drag.onMouseMove}
 						onScroll={(e) =>

@@ -75,8 +75,7 @@ export default function ({
 						ref={isPc ? current : undefined}
 						className={twMerge(
 							"flex flex-row items-center gap-[.75rem] pr-[1rem] whitespace-pre",
-							isPc &&
-								"bg-amber-500/20 shadow-[inset_3px_0_0_var(--color-amber-500)]",
+							isPc && "bg-black/[.06] dark:bg-white/[.07]",
 							isTouched && !isPc && "bg-sky-500/10",
 						)}
 					>

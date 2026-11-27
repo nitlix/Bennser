@@ -20,6 +20,28 @@
 		}
 	}
 
+	/*
+	 * Soft dark theme after VS Code's dark editors: instead of pure black, the
+	 * dark-mode greys are remapped once here, so every `dark:` class follows.
+	 * black = editor surface, 950 = chrome around it, 900 = raised faces,
+	 * 800 = borders. Each is ~20% darker than the VS Code theme it follows.
+	 */
+	[data-theme="dark"] {
+		color-scheme: dark;
+		--color-black: #0e0f11;
+		--color-neutral-950: #131416;
+		--color-neutral-900: #191a1c;
+		--color-neutral-800: #242628;
+		--color-neutral-700: #36383b;
+		--color-neutral-600: #74777a;
+		--color-neutral-500: #8d9196;
+		--color-neutral-400: #a5a8ab;
+		--color-neutral-300: #bcbec0;
+		--color-neutral-200: #d4d6d8;
+		--color-neutral-100: #e4e6e7;
+		--color-white: #eceeef;
+	}
+
 	* {
 		@apply box-border;
 

@@ -38,8 +38,12 @@
 		}
 	}
 
+	&.active {
+		@apply text-black dark:text-neutral-200;
+	}
+
 	&.current {
-		@apply text-amber-600 dark:text-amber-400 font-[600];
+		@apply text-black dark:text-white font-[700];
 	}
 
 	&.error {
@@ -67,9 +71,16 @@
 	@apply absolute inset-x-0 h-[var(--line)];
 }
 
+/* The caret's line, like VS Code's current-line highlight. */
+.caretBand {
+	@extend %band;
+	@apply bg-black/[.04] dark:bg-white/[.045];
+}
+
+/* The PC's line: a stronger grey band with a grey edge, so it reads apart from the caret line. */
 .pcBand {
 	@extend %band;
-	@apply bg-amber-500/20 border-l-[3px] border-amber-500;
+	@apply bg-black/[.08] dark:bg-white/[.09] border-l-[2px] border-neutral-400 dark:border-neutral-500;
 }
 
 .breakpointBand {
@@ -89,38 +100,54 @@
 	font: inherit;
 }
 
+/*
+ * Syntax colours: one hue per role, spread round the wheel so neighbours
+ * never blur together (orange ops, yellow names, teal registers, mauve
+ * directives, green strings, periwinkle numbers, grey comments).
+ */
 .comment {
-	@apply text-neutral-400 dark:text-neutral-500;
-}
-
-.label {
-	@apply text-amber-600 dark:text-amber-400;
+	@apply text-neutral-500;
 }
 
 .mnemonic {
-	@apply text-black dark:text-white;
+	@apply text-[#b4541a] dark:text-[#eca46c];
 }
 
-.directive {
-	@apply text-indigo-600 dark:text-indigo-400;
+.label,
+.symbol,
+.local {
+	@apply text-[#8a6a00] dark:text-[#ead58c];
+}
+
+.directive,
+.data {
+	@apply text-[#8441a8] dark:text-[#c79fe2];
 }
 
 .register {
-	@apply text-sky-600 dark:text-sky-400;
+	@apply text-[#0e7a83] dark:text-[#6ccad2];
 }
 
-.literal,
-.local {
-	@apply text-emerald-600 dark:text-emerald-400;
+.string {
+	@apply text-[#2f7d33] dark:text-[#a3d69a];
+}
+
+.number {
+	@apply text-[#3556b0] dark:text-[#a9c1f5];
 }
 
 .area {
 	@apply relative flex-1 min-w-0 resize-none p-[.75rem] pl-[1rem] bg-transparent text-transparent whitespace-pre overflow-auto outline-none;
 	tab-size: 8;
-	caret-color: var(--color-amber-500);
+	caret-color: var(--color-black);
 
+	:global([data-theme="dark"]) & {
+		caret-color: var(--color-neutral-300);
+	}
+
+	/* VS Code's selection blues. */
 	&::selection {
-		@apply bg-amber-500/25;
+		@apply bg-[#add6ff] dark:bg-[#264f78];
 	}
 
 	&::placeholder {
@@ -130,7 +157,7 @@
 
 /* Where dragged text will land (useDragMove). Positioned in px by the hook. */
 .dropCaret {
-	@apply absolute w-[.125rem] -ml-[.0625rem] rounded-full bg-amber-500 pointer-events-none;
+	@apply absolute w-[.125rem] -ml-[.0625rem] rounded-full bg-black dark:bg-neutral-300 pointer-events-none;
 }
 
 .errors {
