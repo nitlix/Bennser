@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useStored } from "./useStored";
 
 export const PANELS = [
 	{ id: "source", title: "Source" },
@@ -70,6 +71,12 @@ function without(columns: Column[], id: PanelId): [Column[], number] {
 
 export function useLayout() {
 	const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT);
+	/** Floating panels: rounded cards with gaps. Off (default): panels butt edge to edge. */
+	const [floating, setFloating] = useStored(
+		"bennser:floatingPanels",
+		false,
+		(v) => typeof v === "boolean",
+	);
 
 	useEffect(() => {
 		const saved = parse(localStorage.getItem(STORAGE_KEY));
@@ -177,7 +184,18 @@ export function useLayout() {
 		[update],
 	);
 
-	return { layout, visible, hide, show, toggle, move, resize, reset };
+	return {
+		layout,
+		visible,
+		hide,
+		show,
+		toggle,
+		move,
+		resize,
+		reset,
+		floating,
+		setFloating,
+	};
 }
 
 export type LayoutApi = ReturnType<typeof useLayout>;

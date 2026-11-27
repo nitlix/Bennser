@@ -78,7 +78,7 @@ function hit(el: HTMLTextAreaElement, m: Metrics, x: number, y: number) {
 }
 
 /** Replace a range through the editing commands, so the browser's undo still works. */
-function replace(
+export function replace(
 	el: HTMLTextAreaElement,
 	from: number,
 	to: number,

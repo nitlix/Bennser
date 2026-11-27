@@ -16,6 +16,7 @@ import Registers from "./Registers";
 import SourceEditor from "./SourceEditor";
 import Toolbar from "./Toolbar";
 import { LuUpload } from "react-icons/lu";
+import { twMerge } from "tailwind-merge";
 import { useFileDrop } from "./useFileDrop";
 import { DEFAULT_NAME, MAX_IMPORT, normaliseName, useFiles } from "./useFiles";
 import { type PanelId, useLayout } from "./useLayout";
@@ -288,7 +289,13 @@ export default function () {
 	};
 
 	return (
-		<div className="flex flex-col gap-[.75rem] w-full h-dvh p-[.75rem] bg-neutral-50 dark:bg-neutral-950 overflow-auto lg:overflow-hidden">
+		<div
+			// p-0 beats the template's `._nitlix > *` page padding (--spacing).
+			className={twMerge(
+				"flex flex-col w-full h-dvh p-0 bg-neutral-50 dark:bg-neutral-950 overflow-auto lg:overflow-hidden",
+				layout.floating && "gap-[.75rem] p-[.75rem]",
+			)}
+		>
 			<Toolbar api={api} layout={layout} />
 			<Dock layout={layout} render={(id) => panels[id]()} />
 			{dropping && (

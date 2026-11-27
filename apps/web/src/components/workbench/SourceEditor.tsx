@@ -5,7 +5,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { tokenizeLine } from "./highlight";
 import s from "./SourceEditor.module.scss";
-import { useDragMove } from "./useDragMove";
+import { replace, useDragMove } from "./useDragMove";
 
 type Props = {
 	value: string;
@@ -101,12 +101,10 @@ export default function ({
 		}
 		if (e.key !== "Tab") return;
 
-		// Insert a real tab instead of moving focus.
+		// Insert a real tab instead of moving focus, as an edit ⌘Z / Ctrl+Z can undo.
 		e.preventDefault();
 		const el = e.currentTarget;
-		const { selectionStart: start, selectionEnd: end } = el;
-		onChange(`${value.slice(0, start)}\t${value.slice(end)}`);
-		requestAnimationFrame(() => el.setSelectionRange(start + 1, start + 1));
+		replace(el, el.selectionStart, el.selectionEnd, "\t");
 	}
 
 	function jumpTo(line: number, column: number) {

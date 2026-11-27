@@ -74,6 +74,20 @@ type Props = {
 /** "1 instruction" / "10 instructions". */
 const instructions = (n: number) => `${n} instruction${n === 1 ? "" : "s"}`;
 
+/** The checkbox square in the View menu's tickable items. */
+function Tick({ on }: { on: boolean }) {
+	return (
+		<span
+			className={twMerge(
+				"grid place-items-center size-[1.1rem] rounded-[.35rem] border-[1px] border-neutral-300 dark:border-neutral-700",
+				on && "bg-amber-400 border-amber-500 text-neutral-950",
+			)}
+		>
+			{on && <LuCheck size={12} strokeWidth={3} />}
+		</span>
+	);
+}
+
 export default function ({ api, layout }: Props) {
 	const { text, tone } = status(api);
 	const multi = api.stepSize > 1;
@@ -81,7 +95,14 @@ export default function ({ api, layout }: Props) {
 	const count = api.machine.cpu.instrCount;
 
 	return (
-		<div className="flex flex-row flex-wrap items-center gap-[.6rem] w-full px-[.75rem] pt-[.375rem] pb-[.25rem]">
+		<div
+			className={twMerge(
+				"flex flex-row flex-wrap items-center gap-[.6rem] w-full px-[.75rem] pt-[.375rem] pb-[.25rem]",
+				// Full mode has no page padding; 1.5rem keeps the toolbar where floating puts it.
+				!layout.floating &&
+					"px-[1.5rem] py-[.5rem] border-b-[1px] border-neutral-200 dark:border-neutral-800",
+			)}
+		>
 			<Logo className="mr-[.75rem]" />
 
 			<div className="w-[1px] h-[1.75rem] bg-neutral-200 dark:bg-neutral-800 mx-[.25rem]" />
@@ -236,24 +257,22 @@ export default function ({ api, layout }: Props) {
 									aria-checked={layout.visible.has(panel.id)}
 									role="menuitemcheckbox"
 								>
-									<span
-										className={twMerge(
-											"grid place-items-center size-[1.1rem] rounded-[.35rem] border-[1px] border-neutral-300 dark:border-neutral-700",
-											layout.visible.has(panel.id) &&
-												"bg-amber-400 border-amber-500 text-neutral-950",
-										)}
-									>
-										{layout.visible.has(panel.id) && (
-											<LuCheck
-												size={12}
-												strokeWidth={3}
-											/>
-										)}
-									</span>
+									<Tick on={layout.visible.has(panel.id)} />
 									{panel.title}
 								</MenuItem>
 							))}
 							<div className="h-[1px] my-[.25rem] bg-neutral-200 dark:bg-neutral-800" />
+							<MenuItem
+								onClick={() =>
+									layout.setFloating(!layout.floating)
+								}
+								aria-checked={layout.floating}
+								role="menuitemcheckbox"
+								title="Rounded panels with gaps between them, instead of edge to edge"
+							>
+								<Tick on={layout.floating} />
+								Floating panels
+							</MenuItem>
 							<MenuItem
 								onClick={layout.reset}
 								className="text-neutral-600 dark:text-neutral-300"

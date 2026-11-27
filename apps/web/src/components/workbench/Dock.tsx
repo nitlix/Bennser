@@ -152,7 +152,7 @@ export default function ({ layout, render }: Props) {
 	}
 
 	return (
-		<div className={s.dock}>
+		<div className={twMerge(s.dock, !layout.floating && s.full)}>
 			{columns.map((col, c) => (
 				// biome-ignore lint/suspicious/noArrayIndexKey: columns have no identity of their own
 				<Fragment key={c}>
