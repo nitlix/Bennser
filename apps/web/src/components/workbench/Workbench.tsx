@@ -15,7 +15,9 @@ import MemoryView from "./MemoryView";
 import Registers from "./Registers";
 import SourceEditor from "./SourceEditor";
 import Toolbar from "./Toolbar";
-import { useFiles } from "./useFiles";
+import { LuUpload } from "react-icons/lu";
+import { useFileDrop } from "./useFileDrop";
+import { DEFAULT_NAME, MAX_IMPORT, normaliseName, useFiles } from "./useFiles";
 import { type PanelId, useLayout } from "./useLayout";
 import { useMachine } from "./useMachine";
 import { useStored } from "./useStored";
@@ -73,18 +75,73 @@ export default function () {
 	const saveRef = useRef(save);
 	saveRef.current = save;
 
-	/** Open a program (save, import, example), checking before dropping unsaved work. */
-	function open(name: string, text: string, input?: string) {
-		const discard =
+	/** Whether opening `name` may go ahead: nothing unsaved, or the user says drop it. */
+	function mayDiscard(name: string) {
+		return (
 			!files.dirty ||
 			confirm(
 				`${files.name} has unsaved changes. Open ${name} anyway and lose them?`,
-			);
-		if (!discard) return;
+			)
+		);
+	}
+
+	function show(name: string, text: string, input?: string) {
 		files.opened(name, text);
 		api.replaceSource(text);
 		api.load(text, input);
 	}
+
+	/** Open a program (save, import, example), checking before dropping unsaved work. */
+	function open(name: string, text: string, input?: string) {
+		if (mayDiscard(name)) show(name, text, input);
+	}
+
+	/**
+	 * Import files (Import file… or a drop): the first opens, the rest are saved to the
+	 * browser. A drop (`autosave`) saves unsaved work first instead of asking.
+	 */
+	async function importFiles(list: File[], autosave: boolean) {
+		const skipped: string[] = [];
+		const read = await Promise.all(
+			list.map(async (file) => {
+				if (file.size > MAX_IMPORT) return null;
+				// Folders and unreadable files reject; NULs mean binary.
+				const text = await file.text().catch(() => null);
+				if (text === null || text.includes("\u0000")) return null;
+				return { name: normaliseName(file.name) ?? DEFAULT_NAME, text };
+			}),
+		);
+		const texts = read.filter((t, i) => {
+			if (!t) skipped.push(list[i]!.name);
+			return t !== null;
+		}) as { name: string; text: string }[];
+		const [first, ...rest] = texts;
+		const notes = skipped.length
+			? [`Skipped (not an assembly text file): ${skipped.join(", ")}`]
+			: [];
+		if (!first) return alert(notes.join("\n"));
+
+		if (autosave && files.dirty) {
+			const error = files.save();
+			if (error) return alert(error);
+			setSaveCount((n) => n + 1);
+		} else if (!autosave && !mayDiscard(first.name)) {
+			return;
+		}
+
+		const full = rest.filter(
+			(f) => files.store(f.name, f.text, first.name) === null,
+		);
+		show(first.name, first.text);
+		if (rest.length > full.length) setSaveCount((n) => n + 1);
+		if (full.length)
+			notes.push(
+				`Browser storage is full, so these weren't saved: ${full.map((f) => f.name).join(", ")}`,
+			);
+		if (notes.length) alert(notes.join("\n"));
+	}
+
+	const dropping = useFileDrop((list) => importFiles(list, true));
 
 	// ⌘S / Ctrl+S save and ⌘↵ run anywhere; outside text fields: → step, ← back, space run/pause.
 	useEffect(() => {
@@ -134,6 +191,7 @@ export default function () {
 						source={api.source}
 						onSave={save}
 						onOpen={open}
+						onImport={(list) => importFiles(list, false)}
 						saveCount={saveCount}
 					/>
 				}
@@ -233,6 +291,17 @@ export default function () {
 		<div className="flex flex-col gap-[.75rem] w-full h-dvh p-[.75rem] bg-neutral-50 dark:bg-neutral-950 overflow-auto lg:overflow-hidden">
 			<Toolbar api={api} layout={layout} />
 			<Dock layout={layout} render={(id) => panels[id]()} />
+			{dropping && (
+				<div className="fixed inset-[.75rem] z-[90] flex flex-col items-center justify-center gap-[.5rem] rounded-[1rem] border-[1px] border-dashed border-neutral-400 dark:border-neutral-600 bg-white/85 dark:bg-black/85 pointer-events-none">
+					<LuUpload size={24} className="text-neutral-500" />
+					<p className="text-[1rem] font-[600]">Drop to import</p>
+					<p className="text-[.875rem] text-neutral-500 text-center text-balance">
+						The first file opens, the rest are saved to this
+						browser.
+						{files.dirty && ` ${files.name} is saved first.`}
+					</p>
+				</div>
+			)}
 		</div>
 	);
 }

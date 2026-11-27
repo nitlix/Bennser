@@ -15,7 +15,7 @@ import Sunburst from "@/components/Sunburst";
 import { EXAMPLES } from "./examples";
 import s from "./FileMenu.module.scss";
 import Menu, { MenuItem, SubMenu } from "./Menu";
-import { DEFAULT_NAME, type FilesApi, normaliseName } from "./useFiles";
+import { type FilesApi, normaliseName } from "./useFiles";
 
 type Props = {
 	files: FilesApi;
@@ -23,12 +23,11 @@ type Props = {
 	onSave: () => void;
 	/** Open a program in the editor (asks first if that would drop unsaved changes). */
 	onOpen: (name: string, text: string, input?: string) => void;
+	/** Import picked files: the first opens, the rest are saved. */
+	onImport: (files: File[]) => void;
 	/** Increments on each successful save; each new value flashes a "Saved" badge. */
 	saveCount: number;
 };
-
-/** Imports bigger than this are almost certainly not assembly. */
-const MAX_IMPORT = 1024 * 1024;
 
 function ago(ms: number) {
 	const s = Math.round((Date.now() - ms) / 1000);
@@ -54,7 +53,14 @@ function ago(ms: number) {
  * while unsaved) and a menu to save to the browser, load a save, import or download a file,
  * or open an example.
  */
-export default function ({ files, source, onSave, onOpen, saveCount }: Props) {
+export default function ({
+	files,
+	source,
+	onSave,
+	onOpen,
+	onImport,
+	saveCount,
+}: Props) {
 	const [draft, setDraft] = useState(files.name);
 	const [mac, setMac] = useState(true);
 	const picker = useRef<HTMLInputElement>(null);
@@ -85,15 +91,10 @@ export default function ({ files, source, onSave, onOpen, saveCount }: Props) {
 		URL.revokeObjectURL(url);
 	}
 
-	async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-		const file = e.target.files?.[0];
+	function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+		const picked = [...(e.target.files ?? [])];
 		e.target.value = "";
-		if (!file) return;
-		if (file.size > MAX_IMPORT) {
-			alert(`${file.name} is too big to be an assembly file.`);
-			return;
-		}
-		onOpen(normaliseName(file.name) ?? DEFAULT_NAME, await file.text());
+		if (picked.length) onImport(picked);
 	}
 
 	return (
@@ -248,7 +249,7 @@ export default function ({ files, source, onSave, onOpen, saveCount }: Props) {
 							}}
 						>
 							<LuUpload size={16} className="shrink-0" />
-							Import file…
+							Import files…
 						</MenuItem>
 						<MenuItem
 							onClick={() => {
@@ -306,6 +307,7 @@ export default function ({ files, source, onSave, onOpen, saveCount }: Props) {
 				ref={picker}
 				type="file"
 				accept=".s,.S,.asm,.txt,text/plain"
+				multiple
 				className="hidden"
 				onChange={onPick}
 			/>

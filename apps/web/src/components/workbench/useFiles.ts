@@ -55,6 +55,23 @@ export function normaliseName(raw: string): string | null {
 	return `${stem}.s`;
 }
 
+/** Imports bigger than this are almost certainly not assembly. */
+export const MAX_IMPORT = 1024 * 1024;
+
+/**
+ * A name for `wanted` that won't clobber a different save: itself if free (or already
+ * holding exactly `text`), else `stem-2.s`, `stem-3.s`, …
+ */
+function freeName(wanted: string, text: string, avoid?: string): string {
+	const stem = wanted.replace(/\.s$/, "");
+	for (let n = 1; ; n++) {
+		const name = n === 1 ? wanted : `${stem.slice(0, 60)}-${n}.s`;
+		if (name === avoid) continue;
+		const existing = localStorage.getItem(saveKey(name));
+		if (existing === null || existing === text) return name;
+	}
+}
+
 export function useFiles(source: string) {
 	const [name, setName] = useState(DEFAULT_NAME);
 	const [saves, setSaves] = useState<SaveEntry[]>([]);
@@ -97,6 +114,30 @@ export function useFiles(source: string) {
 		return null;
 	}, [name, source]);
 
+	/**
+	 * Save a program that isn't open (the extra files of a multi-file import), renamed
+	 * rather than overwriting a different save of the same name (or taking `avoid`, the
+	 * name the import is about to open). Returns the name used, or null when storage is full.
+	 */
+	const store = useCallback(
+		(wanted: string, text: string, avoid?: string): string | null => {
+			const name = freeName(wanted, text, avoid);
+			try {
+				localStorage.setItem(saveKey(name), text);
+			} catch {
+				return null;
+			}
+			const index = [
+				{ name, savedAt: Date.now() },
+				...readIndex().filter((e) => e.name !== name),
+			];
+			writeIndex(index);
+			setSaves(index);
+			return name;
+		},
+		[],
+	);
+
 	/** Read a save's source (null if it vanished). */
 	const read = useCallback(
 		(file: string) => localStorage.getItem(saveKey(file)),
@@ -127,6 +168,7 @@ export function useFiles(source: string) {
 		rename,
 		saves,
 		save,
+		store,
 		read,
 		remove,
 		opened,

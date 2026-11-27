@@ -19,6 +19,11 @@
 		border-color 0.15s ease,
 		color 0.15s ease;
 
+	/* Lucide's default 2px stroke reads thin at 16px on a plate; one weight for every icon. */
+	:global(svg) {
+		stroke-width: 2.5;
+	}
+
 	&:hover:not(:disabled) {
 		background: var(--face-hover);
 	}
