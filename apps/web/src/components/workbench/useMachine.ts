@@ -310,7 +310,7 @@ export function useMachine(initialSource: string) {
 	}, [stale, machine, setRunning, stepSize]);
 
 	const sendInput = useCallback(
-		(text: string) => {
+		(text: string | Uint8Array) => {
 			machine.input(text);
 			if (reason === "waiting-input") {
 				setReason(null);

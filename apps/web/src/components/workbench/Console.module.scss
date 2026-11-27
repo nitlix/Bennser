@@ -1,0 +1,30 @@
+@reference "../../app/globals.css";
+
+/* Bennett draws the cursor as one inverted cell after the output.
+   Unfocused it's a hollow box; focused it's a solid blinking block. */
+.cursor {
+	@apply inline-block w-[.6em] h-[1.15em] align-text-bottom opacity-50;
+	box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.focused {
+	@apply opacity-100;
+	background: currentColor;
+	animation: blink 1.1s steps(1, end) infinite;
+}
+
+.waiting {
+	@apply text-amber-500 opacity-100;
+}
+
+@keyframes blink {
+	50% {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.focused {
+		animation: none;
+	}
+}
