@@ -141,13 +141,21 @@
 	tab-size: 8;
 	caret-color: var(--color-black);
 
+	/*
+	 * VS Code-ish selection blue. It must stay translucent: the textarea's text is
+	 * transparent and the coloured copy sits underneath, so an opaque selection
+	 * hides the text. Set through a var because a dark: variant can't follow
+	 * ::selection (the rule gets dropped and dark mode falls back to light).
+	 */
+	--selection: rgb(0 120 215 / 0.22);
+
 	:global([data-theme="dark"]) & {
 		caret-color: var(--color-neutral-300);
+		--selection: rgb(80 150 235 / 0.3);
 	}
 
-	/* VS Code's selection blues. */
 	&::selection {
-		@apply bg-[#add6ff] dark:bg-[#264f78];
+		background: var(--selection);
 	}
 
 	&::placeholder {
